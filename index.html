@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#1B2320" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon-192.png" type="image/png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<title>Revision Tracker</title>
+<style>
+  :root {
+    --bg:#1B2320; --surface:#232E29; --surface2:#2E3A34;
+    --text:#E8E6DE; --text2:#9AA69C;
+    --accent:#D4A24C; --accent-dim:#8C7038; --warn:#C1666B; --good:#7FA37A;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; padding:0; height:100%; background:var(--bg); color:var(--text);
+    font-family:-apple-system,"Segoe UI",Roboto,sans-serif; overscroll-behavior-y:none; }
+  .serif { font-family:Georgia,"Iowan Old Style","Times New Roman",serif; }
+  #root { position:relative; display:flex; flex-direction:column; height:100vh; max-width:560px; margin:0 auto; background:var(--bg); }
+
+  /* auth */
+  #authScreen { display:flex; flex-direction:column; justify-content:center; height:100%; padding:24px; }
+  #authScreen h1 { font-size:26px; text-align:center; margin:0 0 6px; }
+  #authScreen .sub { text-align:center; color:var(--text2); font-size:14px; margin-bottom:24px; }
+  .input { width:100%; background:var(--surface2); border:none; border-radius:10px; padding:12px 14px; color:var(--text); font-size:15px; margin-bottom:12px; }
+  .input:focus { outline:2px solid var(--accent); }
+  textarea.input { resize:vertical; min-height:70px; font-family:inherit; }
+  .btn { width:100%; background:var(--accent); color:#1B2320; font-weight:600; border:none; border-radius:10px; padding:13px 0; font-size:15px; cursor:pointer; margin-top:6px; }
+  .btn-ghost { width:100%; background:transparent; color:var(--text2); border:none; padding:12px 0; font-size:13px; cursor:pointer; }
+  .auth-error { font-size:13px; text-align:center; margin-top:8px; min-height:16px; color:var(--warn); }
+  #googleBtn { background:var(--surface2); color:var(--text); margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:8px; }
+
+  /* shell */
+  #appScreen { display:none; flex-direction:column; height:100%; }
+  header { padding:16px 16px 10px; display:flex; align-items:center; gap:10px; flex-shrink:0; min-height:34px; }
+  .back-btn { background:none; border:none; color:var(--text); font-size:22px; cursor:pointer; padding:2px 6px 2px 0; }
+  .hdr-title { font-size:18px; font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #logoutBtn { background:none; border:none; color:var(--text2); font-size:12px; cursor:pointer; padding:6px; }
+  main { flex:1; overflow-y:auto; padding:2px 18px 96px; -webkit-overflow-scrolling:touch; }
+  nav.tabs { display:flex; border-top:1px solid var(--surface2); background:var(--bg); padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px)); flex-shrink:0; }
+  .tab { flex:1; background:none; border:none; color:var(--text2); font-size:13px; padding:10px 0; cursor:pointer; border-radius:10px; }
+  .tab.on { color:var(--accent); background:var(--surface); }
+  .loading-msg { color:var(--text2); font-size:14px; text-align:center; padding:60px 20px; line-height:1.5; }
+  .fab { position:absolute; right:20px; bottom:74px; width:52px; height:52px; border-radius:50%; background:var(--accent); color:#1B2320; font-size:26px; border:none; box-shadow:0 4px 14px rgba(0,0,0,0.35); cursor:pointer; line-height:1; z-index:5; }
+
+  /* rows */
+  .row { display:flex; align-items:center; gap:12px; padding:14px 4px; border-bottom:1px solid var(--surface2); cursor:pointer; }
+  .row-main { flex:1; min-width:0; }
+  .row-title { font-size:15px; color:var(--text); }
+  .row-sub { font-size:12.5px; color:var(--text2); margin-top:2px; }
+  .row-chevron { color:var(--text2); font-size:18px; flex-shrink:0; }
+  .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .dot.green { background:var(--good); } .dot.yellow { background:var(--accent); } .dot.red { background:var(--warn); }
+  .badge { font-size:11.5px; padding:3px 9px; border-radius:20px; background:var(--surface2); color:var(--text2); flex-shrink:0; }
+  .badge.overdue { color:var(--warn); }
+  .mini-track { height:4px; background:var(--surface2); border-radius:3px; overflow:hidden; margin-top:6px; width:100%; }
+  .mini-fill { height:100%; background:var(--accent); }
+  .empty { text-align:center; color:var(--text2); font-size:14px; padding:50px 20px; line-height:1.6; }
+
+  /* subject detail */
+  .pane { padding-top:8px; }
+  .metric-row { display:flex; gap:10px; margin-bottom:18px; }
+  .metric-card { flex:1; background:var(--surface); border-radius:12px; padding:14px; text-align:center; }
+  .metric-num { font-size:22px; font-weight:600; }
+  .metric-label { font-size:11px; color:var(--text2); margin-top:2px; }
+  .section-title { font-size:13px; color:var(--text2); margin:22px 0 10px; display:flex; justify-content:space-between; align-items:center; }
+  .add-link { color:var(--accent); font-size:12.5px; background:none; border:none; cursor:pointer; }
+  .hist-item { display:flex; justify-content:space-between; padding:9px 4px; border-bottom:1px solid var(--surface2); font-size:13px; color:var(--text2); }
+  .btn-delete { color:var(--warn); background:none; border:none; font-size:13px; cursor:pointer; padding:12px 0; width:100%; text-align:center; margin-top:26px; }
+
+  /* flagged list */
+  .flag-item { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--surface2); }
+  .flag-label { flex:1; font-size:13.5px; }
+  .flag-label.mastered { color:var(--text2); text-decoration:line-through; }
+  .flag-note { font-size:11.5px; color:var(--text2); margin-top:2px; }
+  .flag-toggle { font-size:11.5px; padding:5px 10px; border-radius:8px; border:1px solid var(--surface2); background:transparent; color:var(--text2); cursor:pointer; flex-shrink:0; }
+  .flag-toggle.on { border-color:var(--good); color:var(--good); }
+  .flag-del { background:none; border:none; color:var(--text2); font-size:18px; cursor:pointer; padding:2px 6px; }
+
+  /* overlay / sheets */
+  .overlay { position:absolute; inset:0; background:var(--bg); display:none; flex-direction:column; z-index:20; }
+  .overlay.show { display:flex; }
+  .overlay-header { padding:16px 16px 8px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  .overlay-back { background:none; border:none; color:var(--text); font-size:20px; cursor:pointer; padding:4px 8px; }
+  .overlay-title { font-size:17px; font-weight:600; }
+  .overlay-body { flex:1; overflow-y:auto; padding:8px 20px calc(30px + env(safe-area-inset-bottom,0px)); }
+  .field-label { font-size:12.5px; color:var(--text2); margin:14px 0 6px; }
+  .type-row { display:flex; gap:8px; }
+  .chip { flex:1; padding:10px 0; border-radius:10px; border:1px solid var(--surface2); background:transparent; color:var(--text2); font-size:13px; cursor:pointer; }
+  .chip.on { border-color:var(--accent); color:var(--accent); }
+  .sheet-actions { display:flex; gap:10px; margin-top:22px; }
+
+  /* stats */
+  .stat-row { display:flex; justify-content:space-between; padding:12px 4px; border-bottom:1px solid var(--surface2); font-size:14px; }
+  .stat-row .n { color:var(--accent); font-weight:600; }
+  .bars { display:flex; gap:8px; align-items:flex-end; height:100px; padding:0 4px 12px; }
+  .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; height:100%; }
+  .bar-track { flex:1; width:100%; display:flex; align-items:flex-end; background:var(--surface); border-radius:6px; overflow:hidden; }
+  .bar-fill { width:100%; background:var(--accent); border-radius:6px 6px 0 0; }
+  .bar-label { margin-top:6px; font-size:10.5px; color:var(--text2); }
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="authScreen">
+    <h1 class="serif">Revision Tracker</h1>
+    <div class="sub">Sign in to sync your subjects across devices</div>
+    <button class="btn" id="googleBtn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.9 32.9 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 6.1 29.5 4 24 4 16 4 9 8.5 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.3 0 10.2-2 13.9-5.3l-6.4-5.4C29.4 35 26.8 36 24 36c-5.3 0-9.8-3.4-11.4-8.1l-6.5 5C9 39.4 16 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.4 5.4C40.9 36.4 44 30.7 44 24c0-1.4-.1-2.5-.4-3.5z"/></svg>
+      Continue with Google
+    </button>
+    <div style="text-align:center; color:var(--text2); font-size:12px; margin-bottom:14px;">or use email</div>
+    <input class="input" id="authEmail" type="email" placeholder="Email" autocomplete="email" />
+    <input class="input" id="authPassword" type="password" placeholder="Password" autocomplete="current-password" />
+    <button class="btn" id="authSubmit">Log in</button>
+    <button class="btn-ghost" id="authToggle">Don't have an account? Sign up</button>
+    <button class="btn-ghost" id="forgotBtn">Forgot password?</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+
+  <div id="appScreen">
+    <header id="hdr"></header>
+    <main id="main"></main>
+    <button class="fab" id="fab" style="display:none;">+</button>
+    <nav class="tabs">
+      <button class="tab on" data-tab="due">Due Today</button>
+      <button class="tab" data-tab="subjects">Subjects</button>
+      <button class="tab" data-tab="stats">Stats</button>
+    </nav>
+
+    <div class="overlay" id="sheetOverlay">
+      <div class="overlay-header">
+        <button class="overlay-back" id="sheetBack">‹</button>
+        <div class="overlay-title" id="sheetTitle">Add</div>
+      </div>
+      <div class="overlay-body" id="sheetBody"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+(function () {
+  "use strict";
+
+  var firebaseConfig = {
+    apiKey: "AIzaSyBsSehFvU33Lq35WBw_H6QpEOFeYQOmoiM",
+    authDomain: "my-library-2749c.firebaseapp.com",
+    projectId: "my-library-2749c",
+    storageBucket: "my-library-2749c.firebasestorage.app",
+    messagingSenderId: "936698152438",
+    appId: "1:936698152438:web:8a932dc91bd5897b11f3d7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+
+  function $(id) { return document.getElementById(id); }
+  function escapeHtml(s) {
+    var div = document.createElement("div");
+    div.textContent = s == null ? "" : s;
+    return div.innerHTML;
+  }
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function addDaysStr(dateStr, n) {
+    var d = new Date(dateStr + "T00:00:00");
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function daysBetween(a, b) {
+    var da = new Date(a + "T00:00:00"), db_ = new Date(b + "T00:00:00");
+    return Math.round((db_ - da) / 86400000);
+  }
+  function uid() {
+    return (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)) + Date.now().toString(36);
+  }
+
+  var INTERVALS = [3, 7, 21, 45]; // days after revision 1,2,3,4...; +30/rev after that
+
+  // ---------- state ----------
+  var currentUser = null;
+  var unsubSubjects = null;
+  var subjects = [];           // [{id, name, createdAt, revisions:[], books:[], mocks:[]}]
+  var tab = "due";
+  var stack = [{ type: "list" }]; // list | detail(subjectId) | bookDetail(subjectId,bookId)
+  var sheetMode = null;
+  var sheetCtx = null;
+
+  // ---------- auth ----------
+  var isSignup = false;
+  $("authToggle").addEventListener("click", function () {
+    isSignup = !isSignup;
+    $("authSubmit").textContent = isSignup ? "Sign up" : "Log in";
+    $("authToggle").textContent = isSignup ? "Already have an account? Log in" : "Don't have an account? Sign up";
+    $("authError").textContent = "";
+  });
+  $("googleBtn").addEventListener("click", function () {
+    $("authError").textContent = "";
+    auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (err) {
+      $("authError").style.color = "var(--warn)";
+      $("authError").textContent = friendlyAuthError(err);
+    });
+  });
+  auth.getRedirectResult().catch(function (err) {
+    if (err && err.code && err.code !== "auth/no-auth-event") {
+      $("authError").style.color = "var(--warn)";
+      $("authError").textContent = friendlyAuthError(err);
+    }
+  });
+  $("authSubmit").addEventListener("click", function () {
+    var email = $("authEmail").value.trim();
+    var pass = $("authPassword").value;
+    $("authError").textContent = "";
+    if (!email || !pass) { $("authError").textContent = "Enter your email and password."; return; }
+    var action = isSignup ? auth.createUserWithEmailAndPassword(email, pass) : auth.signInWithEmailAndPassword(email, pass);
+    action.catch(function (err) {
+      $("authError").style.color = "var(--warn)";
+      $("authError").textContent = friendlyAuthError(err);
+    });
+  });
+  $("forgotBtn").addEventListener("click", function () {
+    var email = $("authEmail").value.trim();
+    if (!email) { $("authError").textContent = "Type your email above first, then tap this again."; return; }
+    auth.sendPasswordResetEmail(email).then(function () {
+      $("authError").style.color = "var(--accent)";
+      $("authError").textContent = "Reset link sent — check your email.";
+    }).catch(function (err) {
+      $("authError").style.color = "var(--warn)";
+      $("authError").textContent = friendlyAuthError(err);
+    });
+  });
+  function friendlyAuthError(err) {
+    var code = err && err.code;
+    if (code === "auth/email-already-in-use") return "That email already has an account — try logging in.";
+    if (code === "auth/weak-password") return "Password should be at least 6 characters.";
+    if (code === "auth/invalid-email") return "That email address doesn't look right.";
+    if (code === "auth/wrong-password" || code === "auth/invalid-credential") return "Incorrect email or password.";
+    if (code === "auth/user-not-found") return "No account found with that email.";
+    return err && err.message ? err.message : "Something went wrong.";
+  }
+
+  auth.onAuthStateChanged(function (user) {
+    currentUser = user;
+    if (user) {
+      $("authScreen").style.display = "none";
+      $("appScreen").style.display = "flex";
+      subscribeSubjects();
+    } else {
+      $("appScreen").style.display = "none";
+      $("authScreen").style.display = "flex";
+      if (unsubSubjects) { unsubSubjects(); unsubSubjects = null; }
+      subjects = [];
+    }
+  });
+  $("logoutBtn") && $("logoutBtn").addEventListener("click", function () { auth.signOut(); });
+
+  // ---------- data ----------
+  function subjectsCol() { return db.collection("users").doc(currentUser.uid).collection("subjects"); }
+  function subscribeSubjects() {
+    if (unsubSubjects) unsubSubjects();
+    $("main").innerHTML = '<div class="loading-msg">Loading your subjects…</div>';
+    unsubSubjects = subjectsCol().onSnapshot(function (snap) {
+      subjects = [];
+      snap.forEach(function (doc) { subjects.push(Object.assign({ id: doc.id }, doc.data())); });
+      render();
+    }, function (err) {
+      $("main").innerHTML = '<div class="loading-msg">Couldn\'t load: ' + escapeHtml(err.message) + '</div>';
+    });
+  }
+  function saveSubject(subj) {
+    var data = Object.assign({}, subj);
+    delete data.id;
+    subjectsCol().doc(subj.id).set(data, { merge: false }).catch(function (err) { alert("Couldn't save: " + err.message); });
+  }
+  function addSubject(name) {
+    var id = uid();
+    var subj = { id: id, name: name, createdAt: todayStr(), revisions: [], books: [], mocks: [] };
+    saveSubject(subj);
+  }
+  function deleteSubject(id) {
+    subjectsCol().doc(id).delete().catch(function (err) { alert("Couldn't delete: " + err.message); });
+  }
+  function getSubject(id) { return subjects.filter(function (s) { return s.id === id; })[0]; }
+
+  // ---------- spaced repetition ----------
+  function nextInterval(revCount) {
+    if (revCount <= 0) return 0;
+    if (revCount <= INTERVALS.length) return INTERVALS[revCount - 1];
+    return INTERVALS[INTERVALS.length - 1] + (revCount - INTERVALS.length) * 30;
+  }
+  function lastRevisedDate(subj) {
+    if (!subj.revisions || subj.revisions.length === 0) return subj.createdAt;
+    return subj.revisions.reduce(function (a, b) { return b.date > a ? b.date : a; }, subj.revisions[0].date);
+  }
+  function nextDueDate(subj) {
+    var revCount = (subj.revisions || []).length;
+    return addDaysStr(lastRevisedDate(subj), nextInterval(revCount));
+  }
+  function daysSinceTouch(subj) { return daysBetween(lastRevisedDate(subj), todayStr()); }
+  function touchColor(days) { return days < 7 ? "green" : days <= 14 ? "yellow" : "red"; }
+  function isDueToday(subj) { return nextDueDate(subj) <= todayStr(); }
+  function logRevision(subj) {
+    var revs = (subj.revisions || []).slice();
+    revs.push({ date: todayStr(), revNumber: revs.length + 1 });
+    var updated = Object.assign({}, subj, { revisions: revs });
+    saveSubject(updated);
+  }
+
+  // ---------- navigation ----------
+  function push(view) { stack.push(view); history.pushState({ d: stack.length }, ""); render(); scrollTop(); }
+  function popState() {
+    if ($("sheetOverlay").classList.contains("show")) { closeSheet(); return; }
+    if (stack.length > 1) { stack.pop(); render(); scrollTop(); }
+  }
+  function goBack() { history.back(); }
+  window.addEventListener("popstate", popState);
+  function scrollTop() { var m = $("main"); if (m) m.scrollTop = 0; }
+
+  document.querySelectorAll(".tab").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      tab = btn.getAttribute("data-tab");
+      if (tab !== "subjects") stack = [{ type: "list" }];
+      document.querySelectorAll(".tab").forEach(function (b) { b.classList.toggle("on", b === btn); });
+      render();
+    });
+  });
+
+  $("fab").addEventListener("click", function () {
+    var top = stack[stack.length - 1];
+    if (top.type === "detail") openSheet("book", { subjectId: top.subjectId });
+    else openSheet("subject", {});
+  });
+
+  // ---------- sheet (add/edit forms) ----------
+  function openSheet(mode, ctx) {
+    sheetMode = mode; sheetCtx = ctx;
+    var body = $("sheetBody"), html = "";
+    if (mode === "subject") {
+      $("sheetTitle").textContent = "Add subject";
+      html += '<div class="field-label">Subject name</div><input class="input" id="fName" placeholder="e.g. Organic Chemistry"/>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add subject</button></div>';
+    } else if (mode === "book") {
+      $("sheetTitle").textContent = "Add question book";
+      html += '<div class="field-label">Book title</div><input class="input" id="fName" placeholder="e.g. MCQ Bank Vol 1"/>';
+      html += '<div class="field-label">Total questions</div><input class="input" id="fTotal" type="number" placeholder="e.g. 500"/>';
+      html += '<div class="field-label">Type</div><div class="type-row">' +
+        '<button class="chip on" id="chipSingle" data-mode="single">Single-pass</button>' +
+        '<button class="chip" id="chipMulti" data-mode="multi">Multi-pass</button></div>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add book</button></div>';
+    } else if (mode === "pass") {
+      $("sheetTitle").textContent = "Log a pass";
+      html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
+      html += '<div class="field-label">Questions covered</div><input class="input" id="fCount" type="number" placeholder="e.g. 120"/>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save pass</button></div>';
+    } else if (mode === "progress") {
+      $("sheetTitle").textContent = "Update progress";
+      var book = getBook(ctx.subjectId, ctx.bookId);
+      html += '<div class="field-label">Questions completed (of ' + book.totalQuestions + ')</div>' +
+        '<input class="input" id="fCount" type="number" value="' + (book.completedQuestions || 0) + '"/>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
+    } else if (mode === "flag") {
+      $("sheetTitle").textContent = "Flag a question";
+      html += '<div class="field-label">Question number / label</div><input class="input" id="fName" placeholder="e.g. Q45"/>';
+      html += '<div class="field-label">Note (optional)</div><textarea class="input" id="fNote" placeholder="What went wrong?"></textarea>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add flag</button></div>';
+    } else if (mode === "mock") {
+      $("sheetTitle").textContent = "Add mock result";
+      html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
+      html += '<div class="field-label">Score obtained</div><input class="input" id="fScore" type="number" placeholder="e.g. 78"/>';
+      html += '<div class="field-label">Total marks</div><input class="input" id="fTotalMarks" type="number" placeholder="e.g. 100"/>';
+      html += '<div class="field-label">Questions attempted</div><input class="input" id="fAttempted" type="number" placeholder="e.g. 45"/>';
+      html += '<div class="field-label">Correct answers</div><input class="input" id="fCorrect" type="number" placeholder="e.g. 38"/>';
+      html += '<div class="field-label">Negative mark per wrong answer (optional)</div><input class="input" id="fNeg" type="number" step="0.25" placeholder="e.g. 0.25"/>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add mock</button></div>';
+    }
+    body.innerHTML = html;
+    if (mode === "book") {
+      $("chipSingle").addEventListener("click", function () { $("chipSingle").classList.add("on"); $("chipMulti").classList.remove("on"); });
+      $("chipMulti").addEventListener("click", function () { $("chipMulti").classList.add("on"); $("chipSingle").classList.remove("on"); });
+    }
+    $("sheetSave").addEventListener("click", submitSheet);
+    $("sheetOverlay").classList.add("show");
+    history.pushState({ sheet: true }, "");
+  }
+  function closeSheet() { $("sheetOverlay").classList.remove("show"); sheetMode = null; sheetCtx = null; }
+  $("sheetBack").addEventListener("click", goBack);
+
+  function submitSheet() {
+    if (sheetMode === "subject") {
+      var name = $("fName").value.trim();
+      if (!name) return;
+      addSubject(name);
+      history.back();
+    } else if (sheetMode === "book") {
+      var subj = getSubject(sheetCtx.subjectId);
+      var title = $("fName").value.trim();
+      var total = parseInt($("fTotal").value, 10) || 0;
+      var mode = $("chipMulti").classList.contains("on") ? "multi" : "single";
+      if (!title || !total) return;
+      var books = (subj.books || []).slice();
+      books.push({ id: uid(), title: title, mode: mode, totalQuestions: total, completedQuestions: 0, passes: [], flagged: [] });
+      saveSubject(Object.assign({}, subj, { books: books }));
+      history.back();
+    } else if (sheetMode === "pass") {
+      var subj2 = getSubject(sheetCtx.subjectId);
+      var date = $("fDate").value || todayStr();
+      var count = parseInt($("fCount").value, 10) || 0;
+      var books2 = subj2.books.map(function (b) {
+        if (b.id !== sheetCtx.bookId) return b;
+        var passes = (b.passes || []).slice();
+        passes.push({ passNumber: passes.length + 1, date: date, questionsCovered: count });
+        return Object.assign({}, b, { passes: passes });
+      });
+      saveSubject(Object.assign({}, subj2, { books: books2 }));
+      history.back();
+    } else if (sheetMode === "progress") {
+      var subj3 = getSubject(sheetCtx.subjectId);
+      var val = parseInt($("fCount").value, 10) || 0;
+      var books3 = subj3.books.map(function (b) {
+        if (b.id !== sheetCtx.bookId) return b;
+        return Object.assign({}, b, { completedQuestions: Math.min(val, b.totalQuestions) });
+      });
+      saveSubject(Object.assign({}, subj3, { books: books3 }));
+      history.back();
+    } else if (sheetMode === "flag") {
+      var subj4 = getSubject(sheetCtx.subjectId);
+      var label = $("fName").value.trim();
+      if (!label) return;
+      var note = $("fNote").value.trim();
+      var books4 = subj4.books.map(function (b) {
+        if (b.id !== sheetCtx.bookId) return b;
+        var flagged = (b.flagged || []).slice();
+        flagged.push({ id: uid(), label: label, note: note, mastered: false });
+        return Object.assign({}, b, { flagged: flagged });
+      });
+      saveSubject(Object.assign({}, subj4, { books: books4 }));
+      history.back();
+    } else if (sheetMode === "mock") {
+      var subj5 = getSubject(sheetCtx.subjectId);
+      var mocks = (subj5.mocks || []).slice();
+      mocks.push({
+        id: uid(),
+        date: $("fDate").value || todayStr(),
+        scoreObtained: parseFloat($("fScore").value) || 0,
+        totalMarks: parseFloat($("fTotalMarks").value) || 0,
+        attempted: parseInt($("fAttempted").value, 10) || 0,
+        correct: parseInt($("fCorrect").value, 10) || 0,
+        negMarkPerWrong: parseFloat($("fNeg").value) || 0
+      });
+      saveSubject(Object.assign({}, subj5, { mocks: mocks }));
+      history.back();
+    }
+  }
+
+  function getBook(subjectId, bookId) {
+    var s = getSubject(subjectId);
+    return s && s.books.filter(function (b) { return b.id === bookId; })[0];
+  }
+
+  // ---------- header ----------
+  function renderHeader() {
+    var top = stack[stack.length - 1];
+    var title = "Revision Tracker", showBack = false;
+    if (tab === "due") title = "Due Today";
+    else if (tab === "stats") title = "Your Stats";
+    else if (top.type === "list") title = "Subjects";
+    else if (top.type === "detail") { var s = getSubject(top.subjectId); title = s ? s.name : "Subject"; showBack = true; }
+    else if (top.type === "bookDetail") { var b = getBook(top.subjectId, top.bookId); title = b ? b.title : "Book"; showBack = true; }
+    var html = "";
+    if (showBack) html += '<button class="back-btn" id="backBtn">‹</button>';
+    html += '<span class="hdr-title serif">' + escapeHtml(title) + '</span>';
+    html += '<button id="logoutBtn">Log out</button>';
+    $("hdr").innerHTML = html;
+    var backBtn = $("backBtn");
+    if (backBtn) backBtn.addEventListener("click", goBack);
+    $("logoutBtn").addEventListener("click", function () { auth.signOut(); });
+    $("fab").style.display = (tab === "subjects" && (top.type === "list" || top.type === "detail")) ? "flex" : "none";
+  }
+
+  // ---------- Due Today ----------
+  function renderDue() {
+    var due = subjects.filter(isDueToday).sort(function (a, b) { return daysSinceTouch(b) - daysSinceTouch(a); });
+    var html = '<div class="pane">';
+    if (subjects.length === 0) {
+      html += '<div class="empty">No subjects yet. Add one from the Subjects tab.</div>';
+    } else if (due.length === 0) {
+      html += '<div class="empty">Nothing due today — you\'re all caught up. 🎉</div>';
+    } else {
+      due.forEach(function (s) {
+        var days = daysSinceTouch(s);
+        var overdue = daysBetween(nextDueDate(s), todayStr());
+        html += '<div class="row" data-open="' + s.id + '">' +
+          '<span class="dot ' + touchColor(days) + '"></span>' +
+          '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
+          '<div class="row-sub">Last touched ' + days + ' day' + (days===1?"":"s") + ' ago · Rev ' + ((s.revisions||[]).length) + '</div></div>' +
+          '<span class="badge overdue">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
+        '</div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // ---------- Subjects list ----------
+  function renderList() {
+    var sorted = subjects.slice().sort(function (a,b) { return daysSinceTouch(b) - daysSinceTouch(a); });
+    var html = '<div class="pane">';
+    if (sorted.length === 0) {
+      html += '<div class="empty">No subjects yet. Tap + to add your first one.</div>';
+    } else {
+      sorted.forEach(function (s) {
+        var days = daysSinceTouch(s);
+        html += '<div class="row" data-open="' + s.id + '">' +
+          '<span class="dot ' + touchColor(days) + '"></span>' +
+          '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
+          '<div class="row-sub">' + days + ' day' + (days===1?"":"s") + ' since last touch · ' + ((s.revisions||[]).length) + ' revisions</div></div>' +
+          '<span class="row-chevron">›</span>' +
+        '</div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // ---------- Subject detail ----------
+  function renderDetail(subjectId) {
+    var s = getSubject(subjectId);
+    if (!s) return '<div class="empty">Subject not found.</div>';
+    var days = daysSinceTouch(s);
+    var revCount = (s.revisions || []).length;
+    var due = nextDueDate(s);
+    var overdue = daysBetween(due, todayStr());
+
+    var html = '<div class="pane">';
+    html += '<div class="metric-row">' +
+      '<div class="metric-card"><div class="metric-num" style="color:var(--' + (touchColor(days)==="green"?"good":touchColor(days)==="yellow"?"accent":"warn") + ')">' + days + '</div><div class="metric-label">days since touch</div></div>' +
+      '<div class="metric-card"><div class="metric-num">' + revCount + '</div><div class="metric-label">total revisions</div></div>' +
+      '<div class="metric-card"><div class="metric-num" style="' + (overdue>0?"color:var(--warn)":"") + '">' + (overdue>0? overdue+"d" : "on track") + '</div><div class="metric-label">' + (overdue>0?"overdue":"next: "+due) + '</div></div>' +
+    '</div>';
+    html += '<button class="btn" id="logRevBtn">Log revision today</button>';
+
+    html += '<div class="section-title">Revision history</div>';
+    if (revCount === 0) {
+      html += '<div class="row-sub">No revisions logged yet.</div>';
+    } else {
+      s.revisions.slice().sort(function(a,b){return b.date<a.date?-1:1;}).slice(0,8).forEach(function (r) {
+        html += '<div class="hist-item"><span>Revision ' + r.revNumber + '</span><span>' + r.date + '</span></div>';
+      });
+    }
+
+    html += '<div class="section-title">Question books<button class="add-link" id="addBookBtn">+ Add book</button></div>';
+    if (!s.books || s.books.length === 0) {
+      html += '<div class="row-sub">No books added yet.</div>';
+    } else {
+      s.books.forEach(function (b) {
+        var pct, sub;
+        if (b.mode === "single") {
+          pct = b.totalQuestions ? Math.round((b.completedQuestions||0)/b.totalQuestions*100) : 0;
+          sub = (b.completedQuestions||0) + " / " + b.totalQuestions + " questions";
+        } else {
+          var passes = b.passes || [];
+          var lastPass = passes[passes.length-1];
+          pct = lastPass ? Math.round((lastPass.questionsCovered||0)/b.totalQuestions*100) : 0;
+          var flaggedOpen = (b.flagged||[]).filter(function(f){return !f.mastered;}).length;
+          sub = passes.length + " pass" + (passes.length===1?"":"es") + " · " + flaggedOpen + " flagged";
+        }
+        html += '<div class="row" data-open-book="' + b.id + '">' +
+          '<div class="row-main"><div class="row-title">' + escapeHtml(b.title) + '</div>' +
+          '<div class="row-sub">' + sub + '</div>' +
+          '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%"></div></div></div>' +
+          '<span class="row-chevron">›</span>' +
+        '</div>';
+      });
+    }
+
+    html += '<div class="section-title">Mock tests<button class="add-link" id="addMockBtn">+ Add mock</button></div>';
+    var mocks = s.mocks || [];
+    if (mocks.length === 0) {
+      html += '<div class="row-sub">No mocks logged yet.</div>';
+    } else {
+      var avgAcc = Math.round(mocks.reduce(function(a,m){return a+(m.attempted?m.correct/m.attempted*100:0);},0)/mocks.length);
+      html += '<div class="row-sub" style="margin-bottom:10px;">Average accuracy: ' + avgAcc + '% across ' + mocks.length + ' mocks</div>';
+      mocks.slice().sort(function(a,b){return b.date<a.date?-1:1;}).forEach(function (m) {
+        var acc = m.attempted ? Math.round(m.correct/m.attempted*100) : 0;
+        var penalty = m.negMarkPerWrong ? ((m.attempted-m.correct)*m.negMarkPerWrong).toFixed(2) : null;
+        html += '<div class="hist-item"><span>' + m.date + ' — ' + m.scoreObtained + '/' + m.totalMarks + '</span>' +
+          '<span>' + acc + '% acc' + (penalty ? " · -" + penalty : "") + '</span></div>';
+      });
+    }
+
+    html += '<button class="btn-delete" id="deleteSubjBtn">Delete this subject</button>';
+    html += '</div>';
+    return html;
+  }
+
+  // ---------- Book detail ----------
+  function renderBookDetail(subjectId, bookId) {
+    var b = getBook(subjectId, bookId);
+    if (!b) return '<div class="empty">Book not found.</div>';
+    var html = '<div class="pane">';
+    if (b.mode === "single") {
+      var pct = b.totalQuestions ? Math.round((b.completedQuestions||0)/b.totalQuestions*100) : 0;
+      html += '<div class="metric-row"><div class="metric-card"><div class="metric-num">' + pct + '%</div><div class="metric-label">complete</div></div>' +
+        '<div class="metric-card"><div class="metric-num">' + (b.completedQuestions||0) + '/' + b.totalQuestions + '</div><div class="metric-label">questions</div></div></div>';
+      html += '<button class="btn" id="updateProgressBtn">Update progress</button>';
+    } else {
+      html += '<div class="section-title">Passes<button class="add-link" id="addPassBtn">+ Log pass</button></div>';
+      var passes = b.passes || [];
+      if (passes.length === 0) html += '<div class="row-sub">No passes logged yet.</div>';
+      else passes.slice().sort(function(a,b2){return b2.date<a.date?-1:1;}).forEach(function (p) {
+        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' Qs · ' + p.date + '</span></div>';
+      });
+    }
+    html += '<div class="section-title">Flagged questions<button class="add-link" id="addFlagBtn">+ Add flag</button></div>';
+    var flagged = b.flagged || [];
+    if (flagged.length === 0) {
+      html += '<div class="row-sub">Nothing flagged. Add questions you got wrong here to re-drill them without redoing the whole book.</div>';
+    } else {
+      flagged.forEach(function (f) {
+        html += '<div class="flag-item">' +
+          '<div style="flex:1;"><div class="flag-label' + (f.mastered?" mastered":"") + '">' + escapeHtml(f.label) + '</div>' +
+          (f.note ? '<div class="flag-note">' + escapeHtml(f.note) + '</div>' : '') + '</div>' +
+          '<button class="flag-toggle' + (f.mastered?" on":"") + '" data-toggle-flag="' + f.id + '">' + (f.mastered ? "Mastered" : "Mark mastered") + '</button>' +
+          '<button class="flag-del" data-del-flag="' + f.id + '">×</button>' +
+        '</div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function toggleFlag(subjectId, bookId, flagId) {
+    var s = getSubject(subjectId);
+    var books = s.books.map(function (b) {
+      if (b.id !== bookId) return b;
+      var flagged = b.flagged.map(function (f) { return f.id === flagId ? Object.assign({}, f, { mastered: !f.mastered }) : f; });
+      return Object.assign({}, b, { flagged: flagged });
+    });
+    saveSubject(Object.assign({}, s, { books: books }));
+  }
+  function deleteFlag(subjectId, bookId, flagId) {
+    var s = getSubject(subjectId);
+    var books = s.books.map(function (b) {
+      if (b.id !== bookId) return b;
+      return Object.assign({}, b, { flagged: b.flagged.filter(function (f) { return f.id !== flagId; }) });
+    });
+    saveSubject(Object.assign({}, s, { books: books }));
+  }
+
+  // ---------- stats ----------
+  function renderStats() {
+    var total = subjects.length;
+    var dueCount = subjects.filter(isDueToday).length;
+    var totalRevs = subjects.reduce(function (a,s) { return a + (s.revisions||[]).length; }, 0);
+    var allMocks = [];
+    subjects.forEach(function (s) { (s.mocks||[]).forEach(function (m) { allMocks.push(Object.assign({ subject: s.name }, m)); }); });
+    var avgAcc = allMocks.length ? Math.round(allMocks.reduce(function(a,m){return a+(m.attempted?m.correct/m.attempted*100:0);},0)/allMocks.length) : null;
+
+    var html = '<div class="pane">';
+    html += '<div class="stat-row"><span>Total subjects</span><span class="n">' + total + '</span></div>';
+    html += '<div class="stat-row"><span>Due today</span><span class="n">' + dueCount + '</span></div>';
+    html += '<div class="stat-row"><span>Total revisions logged</span><span class="n">' + totalRevs + '</span></div>';
+    html += '<div class="stat-row"><span>Average mock accuracy</span><span class="n">' + (avgAcc===null?"–":avgAcc+"%") + '</span></div>';
+
+    html += '<div class="section-title">Days since touch, by subject</div>';
+    subjects.slice().sort(function(a,b){return daysSinceTouch(b)-daysSinceTouch(a);}).forEach(function (s) {
+      var days = daysSinceTouch(s);
+      html += '<div class="stat-row"><span>' + escapeHtml(s.name) + '</span><span class="n" style="color:var(--' + (touchColor(days)==="green"?"good":touchColor(days)==="yellow"?"accent":"warn") + ')">' + days + 'd</span></div>';
+    });
+
+    if (allMocks.length > 0) {
+      html += '<div class="section-title">Recent mock trend</div>';
+      var recent = allMocks.slice().sort(function(a,b){return a.date<b.date?-1:1;}).slice(-8);
+      html += '<div class="bars">';
+      recent.forEach(function (m) {
+        var acc = m.attempted ? Math.round(m.correct/m.attempted*100) : 0;
+        html += '<div class="bar-col"><div class="bar-track"><div class="bar-fill" style="height:' + acc + '%"></div></div><div class="bar-label">' + m.date.slice(5) + '</div></div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // ---------- master render ----------
+  function render() {
+    renderHeader();
+    var main = $("main");
+    var top = stack[stack.length - 1];
+
+    if (tab === "due") { main.innerHTML = renderDue(); wireOpen(); return; }
+    if (tab === "stats") { main.innerHTML = renderStats(); return; }
+
+    if (top.type === "list") {
+      main.innerHTML = renderList();
+      wireOpen();
+    } else if (top.type === "detail") {
+      main.innerHTML = renderDetail(top.subjectId);
+      var logBtn = $("logRevBtn");
+      if (logBtn) logBtn.addEventListener("click", function () { logRevision(getSubject(top.subjectId)); });
+      var addBookBtn = $("addBookBtn");
+      if (addBookBtn) addBookBtn.addEventListener("click", function () { openSheet("book", { subjectId: top.subjectId }); });
+      var addMockBtn = $("addMockBtn");
+      if (addMockBtn) addMockBtn.addEventListener("click", function () { openSheet("mock", { subjectId: top.subjectId }); });
+      var delBtn = $("deleteSubjBtn");
+      if (delBtn) delBtn.addEventListener("click", function () {
+        if (confirm("Delete this subject and all its data? This can't be undone.")) { deleteSubject(top.subjectId); goBack(); }
+      });
+      main.querySelectorAll("[data-open-book]").forEach(function (el) {
+        el.addEventListener("click", function () { push({ type: "bookDetail", subjectId: top.subjectId, bookId: el.getAttribute("data-open-book") }); });
+      });
+    } else if (top.type === "bookDetail") {
+      main.innerHTML = renderBookDetail(top.subjectId, top.bookId);
+      var upBtn = $("updateProgressBtn");
+      if (upBtn) upBtn.addEventListener("click", function () { openSheet("progress", { subjectId: top.subjectId, bookId: top.bookId }); });
+      var addPassBtn = $("addPassBtn");
+      if (addPassBtn) addPassBtn.addEventListener("click", function () { openSheet("pass", { subjectId: top.subjectId, bookId: top.bookId }); });
+      var addFlagBtn = $("addFlagBtn");
+      if (addFlagBtn) addFlagBtn.addEventListener("click", function () { openSheet("flag", { subjectId: top.subjectId, bookId: top.bookId }); });
+      main.querySelectorAll("[data-toggle-flag]").forEach(function (el) {
+        el.addEventListener("click", function () { toggleFlag(top.subjectId, top.bookId, el.getAttribute("data-toggle-flag")); });
+      });
+      main.querySelectorAll("[data-del-flag]").forEach(function (el) {
+        el.addEventListener("click", function () { deleteFlag(top.subjectId, top.bookId, el.getAttribute("data-del-flag")); });
+      });
+    }
+  }
+
+  function wireOpen() {
+    document.querySelectorAll("[data-open]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        if (tab !== "subjects") { tab = "subjects"; document.querySelectorAll(".tab").forEach(function(b){b.classList.toggle("on", b.getAttribute("data-tab")==="subjects");}); stack = [{ type: "list" }]; }
+        push({ type: "detail", subjectId: el.getAttribute("data-open") });
+      });
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
