@@ -28,7 +28,7 @@
   #authScreen .sub { text-align:center; color:var(--text2); font-size:14px; margin-bottom:24px; }
   .input { width:100%; background:var(--surface2); border:none; border-radius:10px; padding:12px 14px; color:var(--text); font-size:15px; margin-bottom:12px; }
   .input:focus { outline:2px solid var(--accent); }
-  textarea.input { resize:vertical; min-height:70px; font-family:inherit; }
+  textarea.input { resize:vertical; min-height:60px; font-family:inherit; }
   .btn { width:100%; background:var(--accent); color:#1B2320; font-weight:600; border:none; border-radius:10px; padding:13px 0; font-size:15px; cursor:pointer; margin-top:6px; }
   .btn-ghost { width:100%; background:transparent; color:var(--text2); border:none; padding:12px 0; font-size:13px; cursor:pointer; }
   .auth-error { font-size:13px; text-align:center; margin-top:8px; min-height:16px; color:var(--warn); }
@@ -51,26 +51,55 @@
   .row { display:flex; align-items:center; gap:12px; padding:14px 4px; border-bottom:1px solid var(--surface2); cursor:pointer; }
   .row-main { flex:1; min-width:0; }
   .row-title { font-size:15px; color:var(--text); }
-  .row-sub { font-size:12.5px; color:var(--text2); margin-top:2px; }
+  .row-sub { font-size:12.5px; color:var(--text2); margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
   .row-chevron { color:var(--text2); font-size:18px; flex-shrink:0; }
-  .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-  .dot.green { background:var(--good); } .dot.yellow { background:var(--accent); } .dot.red { background:var(--warn); }
-  .badge { font-size:11.5px; padding:3px 9px; border-radius:20px; background:var(--surface2); color:var(--text2); flex-shrink:0; }
-  .badge.overdue { color:var(--warn); }
-  .mini-track { height:4px; background:var(--surface2); border-radius:3px; overflow:hidden; margin-top:6px; width:100%; }
+  .mini-track { height:4px; background:var(--surface2); border-radius:3px; overflow:hidden; margin-top:7px; width:100%; }
   .mini-fill { height:100%; background:var(--accent); }
   .empty { text-align:center; color:var(--text2); font-size:14px; padding:50px 20px; line-height:1.6; }
 
+  /* colored status pills */
+  .badge-pill { font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:20px; display:inline-block; }
+  .badge-green { background:rgba(127,163,122,0.18); color:var(--good); }
+  .badge-yellow { background:rgba(212,162,76,0.18); color:var(--accent); }
+  .badge-red { background:rgba(193,102,107,0.2); color:var(--warn); }
+  .badge-muted { background:var(--surface2); color:var(--text2); }
+
   /* subject detail */
   .pane { padding-top:8px; }
-  .metric-row { display:flex; gap:10px; margin-bottom:18px; }
+  .subj-title-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .subj-title-row h2 { font-size:24px; margin:0; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .icon-btn { background:none; border:none; color:var(--text2); font-size:15px; cursor:pointer; padding:4px 6px; flex-shrink:0; }
+  .meta-line { font-size:13.5px; color:var(--text2); margin-bottom:16px; line-height:2; }
+  .btn-outline-warn { border:1px solid var(--warn); color:var(--warn); background:transparent; border-radius:10px; padding:9px 16px; font-size:13px; cursor:pointer; margin-bottom:20px; }
+
+  .pill-tabs { display:flex; gap:8px; margin-bottom:18px; }
+  .pill-tab { flex:1; padding:11px 0; border-radius:20px; border:1px solid var(--surface2); background:transparent; color:var(--text2); font-size:12.5px; cursor:pointer; text-align:center; }
+  .pill-tab.on { background:var(--accent); color:#1B2320; border-color:var(--accent); font-weight:600; }
+
+  .section-title { font-size:13px; color:var(--text2); margin:6px 0 12px; display:flex; justify-content:space-between; align-items:center; }
+  .add-btn-sm { color:#1B2320; background:var(--accent); border:none; font-size:12.5px; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
+
+  .log-card { background:var(--surface); border-radius:12px; padding:13px 14px; margin-bottom:10px; }
+  .log-card-top { display:flex; justify-content:space-between; align-items:baseline; }
+  .log-pass { font-size:13.5px; font-weight:600; color:var(--text); }
+  .log-date { font-size:12.5px; color:var(--text2); }
+  .log-note { font-size:12.5px; color:var(--text2); font-style:italic; margin-top:6px; }
+  .log-bottom { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+  .log-interval { font-size:11px; color:var(--accent); }
+  .log-remove { font-size:11.5px; color:var(--warn); background:none; border:none; cursor:pointer; padding:2px 4px; }
+
+  .catalog-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .catalog-chip { padding:7px 13px; border-radius:20px; border:1px solid var(--surface2); background:transparent; color:var(--text2); font-size:12.5px; cursor:pointer; }
+  .catalog-chip.on { border-color:var(--accent); color:var(--accent); background:rgba(212,162,76,0.1); }
+
+  .hist-item { display:flex; justify-content:space-between; padding:9px 4px; border-bottom:1px solid var(--surface2); font-size:13px; color:var(--text2); gap:10px; }
+  .hist-item .del { color:var(--warn); background:none; border:none; font-size:11.5px; cursor:pointer; flex-shrink:0; }
+  .btn-delete { color:var(--warn); background:none; border:none; font-size:13px; cursor:pointer; padding:12px 0; width:100%; text-align:center; margin-top:26px; }
+
+  .metric-row { display:flex; gap:10px; margin-bottom:16px; }
   .metric-card { flex:1; background:var(--surface); border-radius:12px; padding:14px; text-align:center; }
   .metric-num { font-size:22px; font-weight:600; }
   .metric-label { font-size:11px; color:var(--text2); margin-top:2px; }
-  .section-title { font-size:13px; color:var(--text2); margin:22px 0 10px; display:flex; justify-content:space-between; align-items:center; }
-  .add-link { color:var(--accent); font-size:12.5px; background:none; border:none; cursor:pointer; }
-  .hist-item { display:flex; justify-content:space-between; padding:9px 4px; border-bottom:1px solid var(--surface2); font-size:13px; color:var(--text2); }
-  .btn-delete { color:var(--warn); background:none; border:none; font-size:13px; cursor:pointer; padding:12px 0; width:100%; text-align:center; margin-top:26px; }
 
   /* flagged list */
   .flag-item { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--surface2); }
@@ -183,18 +212,26 @@
     var da = new Date(a + "T00:00:00"), db_ = new Date(b + "T00:00:00");
     return Math.round((db_ - da) / 86400000);
   }
+  function niceDate(dateStr) {
+    var d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  }
   function uid() {
     return (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)) + Date.now().toString(36);
   }
 
-  var INTERVALS = [3, 7, 21, 45]; // days after revision 1,2,3,4...; +30/rev after that
+  var REV_INTERVALS = [3, 7, 21, 45];   // theory revision schedule (days)
+  var BOOK_INTERVAL = 60;               // question books: minimum 2 months between full re-passes
 
   // ---------- state ----------
   var currentUser = null;
   var unsubSubjects = null;
-  var subjects = [];           // [{id, name, createdAt, revisions:[], books:[], mocks:[]}]
+  var unsubCatalog = null;
+  var subjects = [];
+  var catalog = [];            // [{id, title}] global reusable book names
   var tab = "due";
-  var stack = [{ type: "list" }]; // list | detail(subjectId) | bookDetail(subjectId,bookId)
+  var stack = [{ type: "list" }];
+  var subjectSubtab = "revision"; // revision | books | mocks
   var sheetMode = null;
   var sheetCtx = null;
 
@@ -257,17 +294,21 @@
       $("authScreen").style.display = "none";
       $("appScreen").style.display = "flex";
       subscribeSubjects();
+      subscribeCatalog();
     } else {
       $("appScreen").style.display = "none";
       $("authScreen").style.display = "flex";
       if (unsubSubjects) { unsubSubjects(); unsubSubjects = null; }
-      subjects = [];
+      if (unsubCatalog) { unsubCatalog(); unsubCatalog = null; }
+      subjects = []; catalog = [];
     }
   });
   $("logoutBtn") && $("logoutBtn").addEventListener("click", function () { auth.signOut(); });
 
   // ---------- data ----------
   function subjectsCol() { return db.collection("users").doc(currentUser.uid).collection("subjects"); }
+  function catalogCol() { return db.collection("users").doc(currentUser.uid).collection("bookCatalog"); }
+
   function subscribeSubjects() {
     if (unsubSubjects) unsubSubjects();
     $("main").innerHTML = '<div class="loading-msg">Loading your subjects…</div>';
@@ -279,6 +320,13 @@
       $("main").innerHTML = '<div class="loading-msg">Couldn\'t load: ' + escapeHtml(err.message) + '</div>';
     });
   }
+  function subscribeCatalog() {
+    if (unsubCatalog) unsubCatalog();
+    unsubCatalog = catalogCol().onSnapshot(function (snap) {
+      catalog = [];
+      snap.forEach(function (doc) { catalog.push(Object.assign({ id: doc.id }, doc.data())); });
+    });
+  }
   function saveSubject(subj) {
     var data = Object.assign({}, subj);
     delete data.id;
@@ -286,19 +334,25 @@
   }
   function addSubject(name) {
     var id = uid();
-    var subj = { id: id, name: name, createdAt: todayStr(), revisions: [], books: [], mocks: [] };
-    saveSubject(subj);
+    saveSubject({ id: id, name: name, createdAt: todayStr(), revisions: [], books: [], mocks: [] });
   }
-  function deleteSubject(id) {
-    subjectsCol().doc(id).delete().catch(function (err) { alert("Couldn't delete: " + err.message); });
-  }
+  function deleteSubject(id) { subjectsCol().doc(id).delete().catch(function (err) { alert("Couldn't delete: " + err.message); }); }
   function getSubject(id) { return subjects.filter(function (s) { return s.id === id; })[0]; }
 
-  // ---------- spaced repetition ----------
+  function ensureCatalogEntry(title) {
+    var existing = catalog.filter(function (c) { return c.title.toLowerCase() === title.toLowerCase(); })[0];
+    if (existing) return existing.id;
+    var id = uid();
+    catalogCol().doc(id).set({ title: title, createdAt: todayStr() }).catch(function () {});
+    catalog.push({ id: id, title: title });
+    return id;
+  }
+
+  // ---------- spaced repetition: subjects (theory) ----------
   function nextInterval(revCount) {
-    if (revCount <= 0) return 0;
-    if (revCount <= INTERVALS.length) return INTERVALS[revCount - 1];
-    return INTERVALS[INTERVALS.length - 1] + (revCount - INTERVALS.length) * 30;
+    if (revCount <= 0) return REV_INTERVALS[0];
+    if (revCount <= REV_INTERVALS.length) return REV_INTERVALS[revCount - 1];
+    return REV_INTERVALS[REV_INTERVALS.length - 1] + (revCount - REV_INTERVALS.length) * 30;
   }
   function lastRevisedDate(subj) {
     if (!subj.revisions || subj.revisions.length === 0) return subj.createdAt;
@@ -309,14 +363,43 @@
     return addDaysStr(lastRevisedDate(subj), nextInterval(revCount));
   }
   function daysSinceTouch(subj) { return daysBetween(lastRevisedDate(subj), todayStr()); }
-  function touchColor(days) { return days < 7 ? "green" : days <= 14 ? "yellow" : "red"; }
+  function touchTier(days) { return days < 7 ? "green" : days <= 14 ? "yellow" : "red"; }
   function isDueToday(subj) { return nextDueDate(subj) <= todayStr(); }
-  function logRevision(subj) {
-    var revs = (subj.revisions || []).slice();
-    revs.push({ date: todayStr(), revNumber: revs.length + 1 });
-    var updated = Object.assign({}, subj, { revisions: revs });
-    saveSubject(updated);
+  function badgePill(days) {
+    var tier = touchTier(days);
+    var label = days <= 0 ? "today" : days + "d ago";
+    return '<span class="badge-pill badge-' + tier + '">' + label + '</span>';
   }
+
+  function addRevision(subjectId, date, note) {
+    var s = getSubject(subjectId);
+    var revs = (s.revisions || []).slice();
+    var revNumber = revs.length + 1;
+    var interval = nextInterval(revNumber);
+    revs.push({ id: uid(), date: date, revNumber: revNumber, note: note || "", intervalApplied: interval });
+    saveSubject(Object.assign({}, s, { revisions: revs }));
+  }
+  function removeRevision(subjectId, revId) {
+    var s = getSubject(subjectId);
+    var revs = s.revisions.filter(function (r) { return r.id !== revId; })
+      .sort(function (a, b) { return a.date < b.date ? -1 : 1; })
+      .map(function (r, i) { var rn = i + 1; return Object.assign({}, r, { revNumber: rn, intervalApplied: nextInterval(rn) }); });
+    saveSubject(Object.assign({}, s, { revisions: revs }));
+  }
+
+  // ---------- spaced repetition: books (practice) ----------
+  function bookLastPracticed(b) {
+    var dates = [];
+    if (b.mode === "multi") (b.passes || []).forEach(function (p) { dates.push(p.date); });
+    else (b.reviewLog || []).forEach(function (r) { dates.push(r.date); });
+    if (dates.length === 0) return null;
+    return dates.reduce(function (a, d) { return d > a ? d : a; }, dates[0]);
+  }
+  function bookNextDue(b) {
+    var last = bookLastPracticed(b);
+    return last ? addDaysStr(last, BOOK_INTERVAL) : null;
+  }
+  function bookIsDue(b) { var due = bookNextDue(b); return due !== null && due <= todayStr(); }
 
   // ---------- navigation ----------
   function push(view) { stack.push(view); history.pushState({ d: stack.length }, ""); render(); scrollTop(); }
@@ -339,8 +422,7 @@
 
   $("fab").addEventListener("click", function () {
     var top = stack[stack.length - 1];
-    if (top.type === "detail") openSheet("book", { subjectId: top.subjectId });
-    else openSheet("subject", {});
+    openSheet("subject", {});
   });
 
   // ---------- sheet (add/edit forms) ----------
@@ -351,9 +433,24 @@
       $("sheetTitle").textContent = "Add subject";
       html += '<div class="field-label">Subject name</div><input class="input" id="fName" placeholder="e.g. Organic Chemistry"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add subject</button></div>';
+    } else if (mode === "renameSubject") {
+      var s0 = getSubject(ctx.subjectId);
+      $("sheetTitle").textContent = "Rename subject";
+      html += '<div class="field-label">Subject name</div><input class="input" id="fName" value="' + escapeHtml(s0.name) + '"/>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
+    } else if (mode === "revision") {
+      $("sheetTitle").textContent = "Log a revision";
+      html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
+      html += '<div class="field-label">Note (optional)</div><textarea class="input" id="fNote" placeholder="What did you cover?"></textarea>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log revision</button></div>';
     } else if (mode === "book") {
       $("sheetTitle").textContent = "Add question book";
-      html += '<div class="field-label">Book title</div><input class="input" id="fName" placeholder="e.g. MCQ Bank Vol 1"/>';
+      if (catalog.length > 0) {
+        html += '<div class="field-label">Use an existing book</div><div class="catalog-chips" id="catalogChips">';
+        catalog.forEach(function (c) { html += '<button class="catalog-chip" data-cat="' + c.id + '" data-title="' + escapeHtml(c.title) + '">' + escapeHtml(c.title) + '</button>'; });
+        html += '</div>';
+      }
+      html += '<div class="field-label">Book title</div><input class="input" id="fName" placeholder="e.g. Arihant Physics"/>';
       html += '<div class="field-label">Total questions</div><input class="input" id="fTotal" type="number" placeholder="e.g. 500"/>';
       html += '<div class="field-label">Type</div><div class="type-row">' +
         '<button class="chip on" id="chipSingle" data-mode="single">Single-pass</button>' +
@@ -370,6 +467,11 @@
       html += '<div class="field-label">Questions completed (of ' + book.totalQuestions + ')</div>' +
         '<input class="input" id="fCount" type="number" value="' + (book.completedQuestions || 0) + '"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
+    } else if (mode === "reviewLog") {
+      $("sheetTitle").textContent = "Log a review pass";
+      html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
+      html += '<div style="font-size:12.5px;color:var(--text2);">This just marks that you went back through this book — it resets its 2-month practice clock without changing your completion count.</div>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log review</button></div>';
     } else if (mode === "flag") {
       $("sheetTitle").textContent = "Flag a question";
       html += '<div class="field-label">Question number / label</div><input class="input" id="fName" placeholder="e.g. Q45"/>';
@@ -389,6 +491,14 @@
     if (mode === "book") {
       $("chipSingle").addEventListener("click", function () { $("chipSingle").classList.add("on"); $("chipMulti").classList.remove("on"); });
       $("chipMulti").addEventListener("click", function () { $("chipMulti").classList.add("on"); $("chipSingle").classList.remove("on"); });
+      var chipsWrap = $("catalogChips");
+      if (chipsWrap) chipsWrap.querySelectorAll("[data-cat]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          chipsWrap.querySelectorAll("[data-cat]").forEach(function (c) { c.classList.remove("on"); });
+          el.classList.add("on");
+          $("fName").value = el.getAttribute("data-title");
+        });
+      });
     }
     $("sheetSave").addEventListener("click", submitSheet);
     $("sheetOverlay").classList.add("show");
@@ -403,24 +513,36 @@
       if (!name) return;
       addSubject(name);
       history.back();
+    } else if (sheetMode === "renameSubject") {
+      var s0 = getSubject(sheetCtx.subjectId);
+      var newName = $("fName").value.trim();
+      if (!newName) return;
+      saveSubject(Object.assign({}, s0, { name: newName }));
+      history.back();
+    } else if (sheetMode === "revision") {
+      var date = $("fDate").value || todayStr();
+      var note = $("fNote").value.trim();
+      addRevision(sheetCtx.subjectId, date, note);
+      history.back();
     } else if (sheetMode === "book") {
       var subj = getSubject(sheetCtx.subjectId);
       var title = $("fName").value.trim();
       var total = parseInt($("fTotal").value, 10) || 0;
       var mode = $("chipMulti").classList.contains("on") ? "multi" : "single";
       if (!title || !total) return;
+      var catalogId = ensureCatalogEntry(title);
       var books = (subj.books || []).slice();
-      books.push({ id: uid(), title: title, mode: mode, totalQuestions: total, completedQuestions: 0, passes: [], flagged: [] });
+      books.push({ id: uid(), catalogId: catalogId, title: title, mode: mode, totalQuestions: total, completedQuestions: 0, passes: [], flagged: [], reviewLog: [] });
       saveSubject(Object.assign({}, subj, { books: books }));
       history.back();
     } else if (sheetMode === "pass") {
       var subj2 = getSubject(sheetCtx.subjectId);
-      var date = $("fDate").value || todayStr();
+      var pdate = $("fDate").value || todayStr();
       var count = parseInt($("fCount").value, 10) || 0;
       var books2 = subj2.books.map(function (b) {
         if (b.id !== sheetCtx.bookId) return b;
         var passes = (b.passes || []).slice();
-        passes.push({ passNumber: passes.length + 1, date: date, questionsCovered: count });
+        passes.push({ passNumber: passes.length + 1, date: pdate, questionsCovered: count });
         return Object.assign({}, b, { passes: passes });
       });
       saveSubject(Object.assign({}, subj2, { books: books2 }));
@@ -434,15 +556,26 @@
       });
       saveSubject(Object.assign({}, subj3, { books: books3 }));
       history.back();
+    } else if (sheetMode === "reviewLog") {
+      var subjR = getSubject(sheetCtx.subjectId);
+      var rdate = $("fDate").value || todayStr();
+      var booksR = subjR.books.map(function (b) {
+        if (b.id !== sheetCtx.bookId) return b;
+        var log = (b.reviewLog || []).slice();
+        log.push({ date: rdate });
+        return Object.assign({}, b, { reviewLog: log });
+      });
+      saveSubject(Object.assign({}, subjR, { books: booksR }));
+      history.back();
     } else if (sheetMode === "flag") {
       var subj4 = getSubject(sheetCtx.subjectId);
       var label = $("fName").value.trim();
       if (!label) return;
-      var note = $("fNote").value.trim();
+      var note4 = $("fNote").value.trim();
       var books4 = subj4.books.map(function (b) {
         if (b.id !== sheetCtx.bookId) return b;
         var flagged = (b.flagged || []).slice();
-        flagged.push({ id: uid(), label: label, note: note, mastered: false });
+        flagged.push({ id: uid(), label: label, note: note4, mastered: false });
         return Object.assign({}, b, { flagged: flagged });
       });
       saveSubject(Object.assign({}, subj4, { books: books4 }));
@@ -468,6 +601,14 @@
     var s = getSubject(subjectId);
     return s && s.books.filter(function (b) { return b.id === bookId; })[0];
   }
+  function deleteBook(subjectId, bookId) {
+    var s = getSubject(subjectId);
+    saveSubject(Object.assign({}, s, { books: s.books.filter(function (b) { return b.id !== bookId; }) }));
+  }
+  function deleteMock(subjectId, mockId) {
+    var s = getSubject(subjectId);
+    saveSubject(Object.assign({}, s, { mocks: s.mocks.filter(function (m) { return m.id !== mockId; }) }));
+  }
 
   // ---------- header ----------
   function renderHeader() {
@@ -486,28 +627,47 @@
     var backBtn = $("backBtn");
     if (backBtn) backBtn.addEventListener("click", goBack);
     $("logoutBtn").addEventListener("click", function () { auth.signOut(); });
-    $("fab").style.display = (tab === "subjects" && (top.type === "list" || top.type === "detail")) ? "flex" : "none";
+    $("fab").style.display = (tab === "subjects" && top.type === "list") ? "flex" : "none";
   }
 
   // ---------- Due Today ----------
   function renderDue() {
-    var due = subjects.filter(isDueToday).sort(function (a, b) { return daysSinceTouch(b) - daysSinceTouch(a); });
+    var dueSubjects = subjects.filter(isDueToday).sort(function (a, b) { return daysSinceTouch(b) - daysSinceTouch(a); });
+    var dueBooks = [];
+    subjects.forEach(function (s) { (s.books || []).forEach(function (b) { if (bookIsDue(b)) dueBooks.push({ subject: s, book: b }); }); });
+
     var html = '<div class="pane">';
     if (subjects.length === 0) {
       html += '<div class="empty">No subjects yet. Add one from the Subjects tab.</div>';
-    } else if (due.length === 0) {
-      html += '<div class="empty">Nothing due today — you\'re all caught up. 🎉</div>';
     } else {
-      due.forEach(function (s) {
-        var days = daysSinceTouch(s);
-        var overdue = daysBetween(nextDueDate(s), todayStr());
-        html += '<div class="row" data-open="' + s.id + '">' +
-          '<span class="dot ' + touchColor(days) + '"></span>' +
-          '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
-          '<div class="row-sub">Last touched ' + days + ' day' + (days===1?"":"s") + ' ago · Rev ' + ((s.revisions||[]).length) + '</div></div>' +
-          '<span class="badge overdue">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
-        '</div>';
-      });
+      html += '<div class="section-title">Subjects due for revision</div>';
+      if (dueSubjects.length === 0) {
+        html += '<div class="empty" style="padding:20px;">Nothing due — you\'re caught up. 🎉</div>';
+      } else {
+        dueSubjects.forEach(function (s) {
+          var days = daysSinceTouch(s);
+          var overdue = daysBetween(nextDueDate(s), todayStr());
+          html += '<div class="row" data-open="' + s.id + '">' +
+            '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
+            '<div class="row-sub">' + badgePill(days) + '<span>Rev ' + ((s.revisions||[]).length) + '</span></div></div>' +
+            '<span class="badge-pill badge-red">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
+          '</div>';
+        });
+      }
+      html += '<div class="section-title" style="margin-top:24px;">Books due for practice</div>';
+      if (dueBooks.length === 0) {
+        html += '<div class="empty" style="padding:20px;">No books due for a re-pass yet.</div>';
+      } else {
+        dueBooks.forEach(function (x) {
+          var due = bookNextDue(x.book);
+          var overdue = daysBetween(due, todayStr());
+          html += '<div class="row" data-open="' + x.subject.id + '" data-open-book="' + x.book.id + '">' +
+            '<div class="row-main"><div class="row-title">' + escapeHtml(x.book.title) + '</div>' +
+            '<div class="row-sub">' + escapeHtml(x.subject.name) + '</div></div>' +
+            '<span class="badge-pill badge-red">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
+          '</div>';
+        });
+      }
     }
     html += '</div>';
     return html;
@@ -523,9 +683,8 @@
       sorted.forEach(function (s) {
         var days = daysSinceTouch(s);
         html += '<div class="row" data-open="' + s.id + '">' +
-          '<span class="dot ' + touchColor(days) + '"></span>' +
           '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
-          '<div class="row-sub">' + days + ' day' + (days===1?"":"s") + ' since last touch · ' + ((s.revisions||[]).length) + ' revisions</div></div>' +
+          '<div class="row-sub">' + badgePill(days) + '<span>' + ((s.revisions||[]).length) + ' revisions · ' + ((s.books||[]).length) + ' books</span></div></div>' +
           '<span class="row-chevron">›</span>' +
         '</div>';
       });
@@ -541,66 +700,76 @@
     var days = daysSinceTouch(s);
     var revCount = (s.revisions || []).length;
     var due = nextDueDate(s);
-    var overdue = daysBetween(due, todayStr());
 
     var html = '<div class="pane">';
-    html += '<div class="metric-row">' +
-      '<div class="metric-card"><div class="metric-num" style="color:var(--' + (touchColor(days)==="green"?"good":touchColor(days)==="yellow"?"accent":"warn") + ')">' + days + '</div><div class="metric-label">days since touch</div></div>' +
-      '<div class="metric-card"><div class="metric-num">' + revCount + '</div><div class="metric-label">total revisions</div></div>' +
-      '<div class="metric-card"><div class="metric-num" style="' + (overdue>0?"color:var(--warn)":"") + '">' + (overdue>0? overdue+"d" : "on track") + '</div><div class="metric-label">' + (overdue>0?"overdue":"next: "+due) + '</div></div>' +
+    html += '<div class="subj-title-row"><h2 class="serif">' + escapeHtml(s.name) + '</h2>' +
+      '<button class="icon-btn" id="renameBtn">✎</button></div>';
+    html += '<div class="meta-line">' + revCount + ' revision' + (revCount===1?"":"s") + ' logged · Last touched: ' + badgePill(days) + '<br/>Next due ' + niceDate(due) + '</div>';
+    html += '<button class="btn-outline-warn" id="deleteSubjBtn">Delete subject</button>';
+
+    html += '<div class="pill-tabs">' +
+      '<button class="pill-tab' + (subjectSubtab==="revision"?" on":"") + '" data-subtab="revision">Revision</button>' +
+      '<button class="pill-tab' + (subjectSubtab==="books"?" on":"") + '" data-subtab="books">Question Books</button>' +
+      '<button class="pill-tab' + (subjectSubtab==="mocks"?" on":"") + '" data-subtab="mocks">Mock Tests</button>' +
     '</div>';
-    html += '<button class="btn" id="logRevBtn">Log revision today</button>';
 
-    html += '<div class="section-title">Revision history</div>';
-    if (revCount === 0) {
-      html += '<div class="row-sub">No revisions logged yet.</div>';
-    } else {
-      s.revisions.slice().sort(function(a,b){return b.date<a.date?-1:1;}).slice(0,8).forEach(function (r) {
-        html += '<div class="hist-item"><span>Revision ' + r.revNumber + '</span><span>' + r.date + '</span></div>';
-      });
+    if (subjectSubtab === "revision") {
+      html += '<div class="section-title">Revision log<button class="add-btn-sm" id="addRevBtn">+ Log revision</button></div>';
+      if (revCount === 0) {
+        html += '<div class="empty" style="padding:20px;">No revisions logged yet. Already covered this subject before? Log a past date to backfill your history.</div>';
+      } else {
+        s.revisions.slice().sort(function(a,b){return b.date<a.date?-1:1;}).forEach(function (r) {
+          html += '<div class="log-card">' +
+            '<div class="log-card-top"><span class="log-pass">Pass #' + r.revNumber + '</span><span class="log-date">' + niceDate(r.date) + '</span></div>' +
+            (r.note ? '<div class="log-note">' + escapeHtml(r.note) + '</div>' : '') +
+            '<div class="log-bottom"><span class="log-interval">Next interval: +' + r.intervalApplied + 'd</span>' +
+            '<button class="log-remove" data-del-rev="' + r.id + '">Remove</button></div>' +
+          '</div>';
+        });
+      }
+    } else if (subjectSubtab === "books") {
+      html += '<div class="section-title">Question books<button class="add-btn-sm" id="addBookBtn">+ Add book</button></div>';
+      if (!s.books || s.books.length === 0) {
+        html += '<div class="empty" style="padding:20px;">No books added yet.</div>';
+      } else {
+        s.books.forEach(function (b) {
+          var pct, sub;
+          if (b.mode === "single") {
+            pct = b.totalQuestions ? Math.round((b.completedQuestions||0)/b.totalQuestions*100) : 0;
+            sub = (b.completedQuestions||0) + " / " + b.totalQuestions + " questions";
+          } else {
+            var passes = b.passes || [];
+            var lastPass = passes[passes.length-1];
+            pct = lastPass ? Math.round((lastPass.questionsCovered||0)/b.totalQuestions*100) : 0;
+            var flaggedOpen = (b.flagged||[]).filter(function(f){return !f.mastered;}).length;
+            sub = passes.length + " pass" + (passes.length===1?"":"es") + " · " + flaggedOpen + " flagged";
+          }
+          var due2 = bookNextDue(b);
+          html += '<div class="row" data-open-book="' + b.id + '">' +
+            '<div class="row-main"><div class="row-title">' + escapeHtml(b.title) + '</div>' +
+            '<div class="row-sub"><span>' + sub + '</span>' + (bookIsDue(b) ? '<span class="badge-pill badge-red">due for practice</span>' : (due2 ? '<span class="badge-pill badge-muted">next: ' + niceDate(due2) + '</span>' : '')) + '</div>' +
+            '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%"></div></div></div>' +
+            '<span class="row-chevron">›</span>' +
+          '</div>';
+        });
+      }
+    } else if (subjectSubtab === "mocks") {
+      html += '<div class="section-title">Mock tests<button class="add-btn-sm" id="addMockBtn">+ Add mock</button></div>';
+      var mocks = s.mocks || [];
+      if (mocks.length === 0) {
+        html += '<div class="empty" style="padding:20px;">No mocks logged yet.</div>';
+      } else {
+        var avgAcc = Math.round(mocks.reduce(function(a,m){return a+(m.attempted?m.correct/m.attempted*100:0);},0)/mocks.length);
+        html += '<div class="row-sub" style="margin-bottom:12px;">Average accuracy: ' + avgAcc + '% across ' + mocks.length + ' mocks</div>';
+        mocks.slice().sort(function(a,b){return b.date<a.date?-1:1;}).forEach(function (m) {
+          var acc = m.attempted ? Math.round(m.correct/m.attempted*100) : 0;
+          var penalty = m.negMarkPerWrong ? ((m.attempted-m.correct)*m.negMarkPerWrong).toFixed(2) : null;
+          html += '<div class="hist-item"><span>' + niceDate(m.date) + ' — ' + m.scoreObtained + '/' + m.totalMarks + '</span>' +
+            '<span>' + acc + '% acc' + (penalty ? " · -" + penalty : "") + '</span>' +
+            '<button class="del" data-del-mock="' + m.id + '">×</button></div>';
+        });
+      }
     }
-
-    html += '<div class="section-title">Question books<button class="add-link" id="addBookBtn">+ Add book</button></div>';
-    if (!s.books || s.books.length === 0) {
-      html += '<div class="row-sub">No books added yet.</div>';
-    } else {
-      s.books.forEach(function (b) {
-        var pct, sub;
-        if (b.mode === "single") {
-          pct = b.totalQuestions ? Math.round((b.completedQuestions||0)/b.totalQuestions*100) : 0;
-          sub = (b.completedQuestions||0) + " / " + b.totalQuestions + " questions";
-        } else {
-          var passes = b.passes || [];
-          var lastPass = passes[passes.length-1];
-          pct = lastPass ? Math.round((lastPass.questionsCovered||0)/b.totalQuestions*100) : 0;
-          var flaggedOpen = (b.flagged||[]).filter(function(f){return !f.mastered;}).length;
-          sub = passes.length + " pass" + (passes.length===1?"":"es") + " · " + flaggedOpen + " flagged";
-        }
-        html += '<div class="row" data-open-book="' + b.id + '">' +
-          '<div class="row-main"><div class="row-title">' + escapeHtml(b.title) + '</div>' +
-          '<div class="row-sub">' + sub + '</div>' +
-          '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%"></div></div></div>' +
-          '<span class="row-chevron">›</span>' +
-        '</div>';
-      });
-    }
-
-    html += '<div class="section-title">Mock tests<button class="add-link" id="addMockBtn">+ Add mock</button></div>';
-    var mocks = s.mocks || [];
-    if (mocks.length === 0) {
-      html += '<div class="row-sub">No mocks logged yet.</div>';
-    } else {
-      var avgAcc = Math.round(mocks.reduce(function(a,m){return a+(m.attempted?m.correct/m.attempted*100:0);},0)/mocks.length);
-      html += '<div class="row-sub" style="margin-bottom:10px;">Average accuracy: ' + avgAcc + '% across ' + mocks.length + ' mocks</div>';
-      mocks.slice().sort(function(a,b){return b.date<a.date?-1:1;}).forEach(function (m) {
-        var acc = m.attempted ? Math.round(m.correct/m.attempted*100) : 0;
-        var penalty = m.negMarkPerWrong ? ((m.attempted-m.correct)*m.negMarkPerWrong).toFixed(2) : null;
-        html += '<div class="hist-item"><span>' + m.date + ' — ' + m.scoreObtained + '/' + m.totalMarks + '</span>' +
-          '<span>' + acc + '% acc' + (penalty ? " · -" + penalty : "") + '</span></div>';
-      });
-    }
-
-    html += '<button class="btn-delete" id="deleteSubjBtn">Delete this subject</button>';
     html += '</div>';
     return html;
   }
@@ -609,24 +778,30 @@
   function renderBookDetail(subjectId, bookId) {
     var b = getBook(subjectId, bookId);
     if (!b) return '<div class="empty">Book not found.</div>';
+    var last = bookLastPracticed(b);
+    var due = bookNextDue(b);
     var html = '<div class="pane">';
+
     if (b.mode === "single") {
       var pct = b.totalQuestions ? Math.round((b.completedQuestions||0)/b.totalQuestions*100) : 0;
       html += '<div class="metric-row"><div class="metric-card"><div class="metric-num">' + pct + '%</div><div class="metric-label">complete</div></div>' +
         '<div class="metric-card"><div class="metric-num">' + (b.completedQuestions||0) + '/' + b.totalQuestions + '</div><div class="metric-label">questions</div></div></div>';
       html += '<button class="btn" id="updateProgressBtn">Update progress</button>';
+      html += '<div class="meta-line" style="margin-top:14px;">' + (last ? "Last reviewed " + niceDate(last) + " · Next review " + niceDate(due) : "Not yet marked as reviewed — question books get re-drilled at least every 2 months") + '</div>';
+      html += '<button class="btn-outline-warn" id="reviewLogBtn" style="border-color:var(--accent);color:var(--accent);">Log a review pass today</button>';
     } else {
-      html += '<div class="section-title">Passes<button class="add-link" id="addPassBtn">+ Log pass</button></div>';
+      html += '<div class="meta-line">' + (last ? "Last practiced " + niceDate(last) + " · Next due " + niceDate(due) : "No passes logged yet — question books get re-drilled at least every 2 months") + '</div>';
+      html += '<div class="section-title">Passes<button class="add-btn-sm" id="addPassBtn">+ Log pass</button></div>';
       var passes = b.passes || [];
-      if (passes.length === 0) html += '<div class="row-sub">No passes logged yet.</div>';
+      if (passes.length === 0) html += '<div class="empty" style="padding:20px;">No passes logged yet.</div>';
       else passes.slice().sort(function(a,b2){return b2.date<a.date?-1:1;}).forEach(function (p) {
-        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' Qs · ' + p.date + '</span></div>';
+        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' Qs · ' + niceDate(p.date) + '</span></div>';
       });
     }
-    html += '<div class="section-title">Flagged questions<button class="add-link" id="addFlagBtn">+ Add flag</button></div>';
+    html += '<div class="section-title" style="margin-top:22px;">Flagged questions<button class="add-btn-sm" id="addFlagBtn">+ Add flag</button></div>';
     var flagged = b.flagged || [];
     if (flagged.length === 0) {
-      html += '<div class="row-sub">Nothing flagged. Add questions you got wrong here to re-drill them without redoing the whole book.</div>';
+      html += '<div class="empty" style="padding:20px;">Nothing flagged. Add questions you got wrong here to re-drill them without redoing the whole book.</div>';
     } else {
       flagged.forEach(function (f) {
         html += '<div class="flag-item">' +
@@ -637,6 +812,7 @@
         '</div>';
       });
     }
+    html += '<button class="btn-delete" id="deleteBookBtn">Delete this book</button>';
     html += '</div>';
     return html;
   }
@@ -677,7 +853,7 @@
     html += '<div class="section-title">Days since touch, by subject</div>';
     subjects.slice().sort(function(a,b){return daysSinceTouch(b)-daysSinceTouch(a);}).forEach(function (s) {
       var days = daysSinceTouch(s);
-      html += '<div class="stat-row"><span>' + escapeHtml(s.name) + '</span><span class="n" style="color:var(--' + (touchColor(days)==="green"?"good":touchColor(days)==="yellow"?"accent":"warn") + ')">' + days + 'd</span></div>';
+      html += '<div class="stat-row"><span>' + escapeHtml(s.name) + '</span>' + badgePill(days) + '</div>';
     });
 
     if (allMocks.length > 0) {
@@ -700,49 +876,76 @@
     var main = $("main");
     var top = stack[stack.length - 1];
 
-    if (tab === "due") { main.innerHTML = renderDue(); wireOpen(); return; }
+    if (tab === "due") { main.innerHTML = renderDue(); wireDueOpen(); return; }
     if (tab === "stats") { main.innerHTML = renderStats(); return; }
 
     if (top.type === "list") {
       main.innerHTML = renderList();
-      wireOpen();
+      document.querySelectorAll("[data-open]").forEach(function (el) {
+        el.addEventListener("click", function () { push({ type: "detail", subjectId: el.getAttribute("data-open") }); });
+      });
     } else if (top.type === "detail") {
       main.innerHTML = renderDetail(top.subjectId);
-      var logBtn = $("logRevBtn");
-      if (logBtn) logBtn.addEventListener("click", function () { logRevision(getSubject(top.subjectId)); });
-      var addBookBtn = $("addBookBtn");
-      if (addBookBtn) addBookBtn.addEventListener("click", function () { openSheet("book", { subjectId: top.subjectId }); });
-      var addMockBtn = $("addMockBtn");
-      if (addMockBtn) addMockBtn.addEventListener("click", function () { openSheet("mock", { subjectId: top.subjectId }); });
+      var renameBtn = $("renameBtn");
+      if (renameBtn) renameBtn.addEventListener("click", function () { openSheet("renameSubject", { subjectId: top.subjectId }); });
       var delBtn = $("deleteSubjBtn");
       if (delBtn) delBtn.addEventListener("click", function () {
         if (confirm("Delete this subject and all its data? This can't be undone.")) { deleteSubject(top.subjectId); goBack(); }
       });
-      main.querySelectorAll("[data-open-book]").forEach(function (el) {
+      document.querySelectorAll("[data-subtab]").forEach(function (el) {
+        el.addEventListener("click", function () { subjectSubtab = el.getAttribute("data-subtab"); render(); });
+      });
+      var addRevBtn = $("addRevBtn");
+      if (addRevBtn) addRevBtn.addEventListener("click", function () { openSheet("revision", { subjectId: top.subjectId }); });
+      document.querySelectorAll("[data-del-rev]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          if (confirm("Remove this revision entry?")) removeRevision(top.subjectId, el.getAttribute("data-del-rev"));
+        });
+      });
+      var addBookBtn = $("addBookBtn");
+      if (addBookBtn) addBookBtn.addEventListener("click", function () { openSheet("book", { subjectId: top.subjectId }); });
+      var addMockBtn = $("addMockBtn");
+      if (addMockBtn) addMockBtn.addEventListener("click", function () { openSheet("mock", { subjectId: top.subjectId }); });
+      document.querySelectorAll("[data-del-mock]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          if (confirm("Delete this mock result?")) deleteMock(top.subjectId, el.getAttribute("data-del-mock"));
+        });
+      });
+      document.querySelectorAll("[data-open-book]").forEach(function (el) {
         el.addEventListener("click", function () { push({ type: "bookDetail", subjectId: top.subjectId, bookId: el.getAttribute("data-open-book") }); });
       });
     } else if (top.type === "bookDetail") {
       main.innerHTML = renderBookDetail(top.subjectId, top.bookId);
       var upBtn = $("updateProgressBtn");
       if (upBtn) upBtn.addEventListener("click", function () { openSheet("progress", { subjectId: top.subjectId, bookId: top.bookId }); });
+      var revLogBtn = $("reviewLogBtn");
+      if (revLogBtn) revLogBtn.addEventListener("click", function () { openSheet("reviewLog", { subjectId: top.subjectId, bookId: top.bookId }); });
       var addPassBtn = $("addPassBtn");
       if (addPassBtn) addPassBtn.addEventListener("click", function () { openSheet("pass", { subjectId: top.subjectId, bookId: top.bookId }); });
       var addFlagBtn = $("addFlagBtn");
       if (addFlagBtn) addFlagBtn.addEventListener("click", function () { openSheet("flag", { subjectId: top.subjectId, bookId: top.bookId }); });
-      main.querySelectorAll("[data-toggle-flag]").forEach(function (el) {
+      var delBookBtn = $("deleteBookBtn");
+      if (delBookBtn) delBookBtn.addEventListener("click", function () {
+        if (confirm("Delete this book and all its progress? This can't be undone.")) { deleteBook(top.subjectId, top.bookId); goBack(); }
+      });
+      document.querySelectorAll("[data-toggle-flag]").forEach(function (el) {
         el.addEventListener("click", function () { toggleFlag(top.subjectId, top.bookId, el.getAttribute("data-toggle-flag")); });
       });
-      main.querySelectorAll("[data-del-flag]").forEach(function (el) {
+      document.querySelectorAll("[data-del-flag]").forEach(function (el) {
         el.addEventListener("click", function () { deleteFlag(top.subjectId, top.bookId, el.getAttribute("data-del-flag")); });
       });
     }
   }
 
-  function wireOpen() {
+  function wireDueOpen() {
     document.querySelectorAll("[data-open]").forEach(function (el) {
       el.addEventListener("click", function () {
-        if (tab !== "subjects") { tab = "subjects"; document.querySelectorAll(".tab").forEach(function(b){b.classList.toggle("on", b.getAttribute("data-tab")==="subjects");}); stack = [{ type: "list" }]; }
-        push({ type: "detail", subjectId: el.getAttribute("data-open") });
+        tab = "subjects";
+        document.querySelectorAll(".tab").forEach(function(b){b.classList.toggle("on", b.getAttribute("data-tab")==="subjects");});
+        var bookId = el.getAttribute("data-open-book");
+        stack = bookId ? [{ type: "list" }, { type: "detail", subjectId: el.getAttribute("data-open") }, { type: "bookDetail", subjectId: el.getAttribute("data-open"), bookId: bookId }]
+                       : [{ type: "list" }, { type: "detail", subjectId: el.getAttribute("data-open") }];
+        render();
       });
     });
   }
