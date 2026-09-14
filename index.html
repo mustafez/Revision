@@ -62,6 +62,11 @@
   .badge-accent { background:rgba(212,162,76,0.18); color:var(--accent); }
   .badge-good { background:rgba(127,163,122,0.18); color:var(--good); }
 
+  .spotlight { background:linear-gradient(135deg, rgba(212,162,76,0.14), rgba(212,162,76,0.04)); border:1px solid var(--accent-dim); border-radius:14px; padding:16px; margin-bottom:22px; cursor:pointer; }
+  .spotlight-label { font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+  .spotlight-name { font-size:19px; margin:6px 0 4px; }
+  .spotlight-sub { font-size:12.5px; color:var(--text2); }
+
   .pane { padding-top:8px; }
   .subj-title-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
   .subj-title-row h2 { font-size:24px; margin:0; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -85,6 +90,9 @@
   .log-bottom { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
   .log-interval { font-size:11px; color:var(--accent); }
   .log-remove { font-size:11.5px; color:var(--warn); background:none; border:none; cursor:pointer; padding:2px 4px; }
+
+  .setup-card { background:var(--surface); border-radius:12px; padding:16px; text-align:center; margin-bottom:18px; }
+  .setup-card p { font-size:13px; color:var(--text2); margin:0 0 12px; line-height:1.5; }
 
   .hist-item { display:flex; justify-content:space-between; padding:9px 4px; border-bottom:1px solid var(--surface2); font-size:13px; color:var(--text2); gap:10px; }
   .hist-item .del { color:var(--warn); background:none; border:none; font-size:11.5px; cursor:pointer; flex-shrink:0; }
@@ -150,7 +158,7 @@
     <nav class="tabs">
       <button class="tab on" data-tab="due">Due Today</button>
       <button class="tab" data-tab="subjects">Subjects</button>
-      <button class="tab" data-tab="books">Books</button>
+      <button class="tab" data-tab="books">PYQs</button>
       <button class="tab" data-tab="stats">Stats</button>
     </nav>
 
@@ -212,20 +220,21 @@
     return (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)) + Date.now().toString(36);
   }
 
-  // Revision schedule: aim for ~3x/month early on (every 10 days), at minimum 2x/month.
-  // The first three revisions are the important ones; after that, the gap can stretch to months.
-  var REV_INTERVALS = [10, 10, 60]; // interval AFTER rev 1, rev 2, rev 3
-  var BOOK_INTERVAL = 60;           // practice books: re-drill no sooner than ~2 months after finishing
+  // Revision schedule for SUBJECTS THAT HAVE ALREADY HAD THEIR FIRST PASS:
+  // aim for ~3x/month early on (every 10 days), at minimum 2x/month. The first three
+  // revisions are the important ones; after that, the gap can stretch to months.
+  var REV_INTERVALS = [10, 10, 60];
+  var BOOK_INTERVAL = 60; // PYQ sets: re-drill no sooner than ~2 months after finishing
 
   // ---------- state ----------
   var currentUser = null;
   var unsubSubjects = null;
   var unsubBooks = null;
   var subjects = [];
-  var practiceBooks = [];      // GLOBAL, shared across every subject: [{id, title, mode, totalQuestions, createdAt}]
+  var practiceBooks = [];      // GLOBAL, shared across every subject: [{id, title, mode, createdAt}] — no question count here
   var tab = "due";
   var stack = [{ type: "list" }];
-  var subjectSubtab = "revision"; // revision | books | mocks
+  var subjectSubtab = "revision";
   var sheetMode = null;
   var sheetCtx = null;
 
@@ -309,6 +318,7 @@
     unsubSubjects = subjectsCol().onSnapshot(function (snap) {
       subjects = [];
       snap.forEach(function (doc) { subjects.push(Object.assign({ id: doc.id }, doc.data())); });
+      subjects.sort(function (a, b) { return (a.createdAt||"").localeCompare(b.createdAt||""); });
       render();
     }, function (err) {
       $("main").innerHTML = '<div class="loading-msg">Couldn\'t load: ' + escapeHtml(err.message) + '</div>';
@@ -330,26 +340,27 @@
   }
   function addSubject(name) {
     var id = uid();
-    saveSubject({ id: id, name: name, createdAt: todayStr(), revisions: [], bookProgress: {}, mocks: [] });
+    saveSubject({ id: id, name: name, createdAt: todayStr() + "T" + Date.now(), revisions: [], bookProgress: {}, mocks: [] });
   }
   function deleteSubject(id) { subjectsCol().doc(id).delete().catch(function (err) { alert("Couldn't delete: " + err.message); }); }
   function getSubject(id) { return subjects.filter(function (s) { return s.id === id; })[0]; }
+  function subjCreatedDate(s) { return (s.createdAt || todayStr()).slice(0, 10); }
 
-  function addPracticeBook(title, mode, total) {
+  function addPracticeBook(title, mode) {
     var id = uid();
-    booksCol().doc(id).set({ title: title, mode: mode, totalQuestions: total, createdAt: todayStr() + "T" + Date.now() })
-      .catch(function (err) { alert("Couldn't add book: " + err.message); });
+    booksCol().doc(id).set({ title: title, mode: mode, createdAt: todayStr() + "T" + Date.now() })
+      .catch(function (err) { alert("Couldn't add: " + err.message); });
   }
   function deletePracticeBook(bookId) {
     booksCol().doc(bookId).delete().catch(function (err) { alert("Couldn't delete: " + err.message); });
   }
   function getGlobalBook(bookId) { return practiceBooks.filter(function (b) { return b.id === bookId; })[0]; }
 
-  // per-subject progress against a shared/global book — every subject automatically has
-  // an entry for every book that exists, defaulting to "not started" until touched
+  // per-subject progress against a shared/global PYQ set. totalQuestions lives HERE, per
+  // subject, since the same PYQ set can have a different question count in each subject.
   function getProgress(subj, bookId) {
     var p = (subj.bookProgress || {})[bookId];
-    return p || { completedQuestions: 0, passes: [], flagged: [], reviewLog: [] };
+    return p || { totalQuestions: 0, completedQuestions: 0, passes: [], flagged: [], reviewLog: [] };
   }
   function updateProgress(subjectId, bookId, patch) {
     var s = getSubject(subjectId);
@@ -358,24 +369,38 @@
     saveSubject(Object.assign({}, s, { bookProgress: bp }));
   }
 
-  // ---------- spaced repetition: subjects (theory) ----------
+  // ---------- MAIN SUBJECT: the one subject currently getting its first-ever revision ----------
+  // Subjects with zero revisions form a queue (oldest created first); only the front of the
+  // queue is "in focus" right now. The rest are simply "not started yet" and never show as due.
+  function firstPassQueue() {
+    return subjects.filter(function (s) { return (s.revisions || []).length === 0; });
+  }
+  function mainSubject() {
+    var q = firstPassQueue();
+    return q.length ? q[0] : null;
+  }
+
+  // ---------- spaced repetition: subjects that HAVE had at least one revision ----------
   function nextInterval(revCount) {
-    if (revCount <= 0) return 0; // never revised yet -> due immediately
+    if (revCount <= 0) return REV_INTERVALS[0];
     if (revCount <= REV_INTERVALS.length) return REV_INTERVALS[revCount - 1];
     return REV_INTERVALS[REV_INTERVALS.length - 1] + (revCount - REV_INTERVALS.length) * 30;
   }
   function lastRevisedDate(subj) {
-    if (!subj.revisions || subj.revisions.length === 0) return subj.createdAt;
     return subj.revisions.reduce(function (a, b) { return b.date > a ? b.date : a; }, subj.revisions[0].date);
   }
   function nextDueDate(subj) {
-    var revCount = (subj.revisions || []).length;
-    return addDaysStr(lastRevisedDate(subj), nextInterval(revCount));
+    return addDaysStr(lastRevisedDate(subj), nextInterval(subj.revisions.length));
   }
-  function daysSinceTouch(subj) { return daysBetween(lastRevisedDate(subj), todayStr()); }
+  function daysSinceTouch(subj) {
+    if (!subj.revisions || subj.revisions.length === 0) return null; // untouched — no "days since" concept
+    return daysBetween(lastRevisedDate(subj), todayStr());
+  }
   function touchTier(days) { return days < 7 ? "green" : days <= 14 ? "yellow" : "red"; }
-  function isDueToday(subj) { return nextDueDate(subj) <= todayStr(); }
+  // only ever "due" once it's had a first revision — first-pass subjects are handled separately
+  function isDueForRevision(subj) { return (subj.revisions || []).length > 0 && nextDueDate(subj) <= todayStr(); }
   function badgePill(days) {
+    if (days === null) return '<span class="badge-pill badge-muted">not started</span>';
     var tier = touchTier(days);
     var label = days <= 0 ? "today" : days + "d ago";
     return '<span class="badge-pill badge-' + tier + '">' + label + '</span>';
@@ -397,13 +422,13 @@
     saveSubject(Object.assign({}, s, { revisions: revs }));
   }
 
-  // ---------- spaced repetition: books (practice) ----------
+  // ---------- spaced repetition: PYQ sets (per subject) ----------
   function isBookDone(progress, book) {
-    if (!book) return false;
-    if (book.mode === "single") return book.totalQuestions > 0 && (progress.completedQuestions || 0) >= book.totalQuestions;
+    if (!progress.totalQuestions) return false; // not set up for this subject yet
+    if (book.mode === "single") return (progress.completedQuestions || 0) >= progress.totalQuestions;
     var passes = progress.passes || [];
     if (passes.length === 0) return false;
-    return (passes[passes.length - 1].questionsCovered || 0) >= book.totalQuestions;
+    return (passes[passes.length - 1].questionsCovered || 0) >= progress.totalQuestions;
   }
   function bookLastPracticed(progress, book) {
     var dates = [];
@@ -413,18 +438,17 @@
     return dates.reduce(function (a, d) { return d > a ? d : a; }, dates[0]);
   }
   function bookNextDue(progress, book) {
-    if (!isBookDone(progress, book)) return null; // only re-drill cycle applies once finished at least once
+    if (!isBookDone(progress, book)) return null;
     var last = bookLastPracticed(progress, book);
     return last ? addDaysStr(last, BOOK_INTERVAL) : todayStr();
   }
   function bookIsDue(progress, book) { var due = bookNextDue(progress, book); return due !== null && due <= todayStr(); }
 
-  // which book is "current" for a subject: first not-yet-finished book, in the order books were created
   function currentBookIndex(subj) {
     for (var i = 0; i < practiceBooks.length; i++) {
       if (!isBookDone(getProgress(subj, practiceBooks[i].id), practiceBooks[i])) return i;
     }
-    return practiceBooks.length; // all done
+    return practiceBooks.length;
   }
 
   // ---------- navigation ----------
@@ -470,30 +494,34 @@
       html += '<div class="field-label">Note (optional)</div><textarea class="input" id="fNote" placeholder="What did you cover?"></textarea>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log revision</button></div>';
     } else if (mode === "newBook") {
-      $("sheetTitle").textContent = "New practice book";
-      html += '<div style="font-size:12.5px;color:var(--text2);margin-bottom:14px;">This book will automatically be tracked for every subject — each one keeps its own progress against it.</div>';
-      html += '<div class="field-label">Book title</div><input class="input" id="fName" placeholder="Enter book title"/>';
-      html += '<div class="field-label">Total questions</div><input class="input" id="fTotal" type="number" placeholder="Enter total number of questions"/>';
+      $("sheetTitle").textContent = "New PYQ set";
+      html += '<div style="font-size:12.5px;color:var(--text2);margin-bottom:14px;">This PYQ set applies to every subject automatically. Since the number of questions per subject varies by exam, you\'ll set that separately for each subject.</div>';
+      html += '<div class="field-label">Title</div><input class="input" id="fName" placeholder="Enter a name, e.g. the exam/year"/>';
       html += '<div class="field-label">Type</div><div class="type-row">' +
         '<button class="chip on" id="chipSingle" data-mode="single">Single-pass</button>' +
         '<button class="chip" id="chipMulti" data-mode="multi">Multi-pass</button></div>';
-      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add book</button></div>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add PYQ set</button></div>';
+    } else if (mode === "setTotal") {
+      var gb = getGlobalBook(ctx.bookId);
+      $("sheetTitle").textContent = "Set question count";
+      html += '<div style="font-size:12.5px;color:var(--text2);margin-bottom:14px;">How many questions does "' + escapeHtml(gb.title) + '" have for this subject?</div>';
+      html += '<div class="field-label">Total questions</div><input class="input" id="fTotal" type="number" placeholder="Enter total number of questions"/>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
     } else if (mode === "pass") {
       $("sheetTitle").textContent = "Log a pass";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
       html += '<div class="field-label">Questions covered</div><input class="input" id="fCount" type="number" placeholder="Enter number of questions"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save pass</button></div>';
     } else if (mode === "progress") {
-      $("sheetTitle").textContent = "Update progress";
-      var book = getGlobalBook(ctx.bookId);
       var prog = getProgress(getSubject(ctx.subjectId), ctx.bookId);
-      html += '<div class="field-label">Questions completed (of ' + book.totalQuestions + ')</div>' +
+      $("sheetTitle").textContent = "Update progress";
+      html += '<div class="field-label">Questions completed (of ' + prog.totalQuestions + ')</div>' +
         '<input class="input" id="fCount" type="number" value="' + (prog.completedQuestions || 0) + '"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
     } else if (mode === "reviewLog") {
       $("sheetTitle").textContent = "Log a review pass";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
-      html += '<div style="font-size:12.5px;color:var(--text2);">This marks that you went back through this book for this subject — it resets its re-drill clock without changing your completion count.</div>';
+      html += '<div style="font-size:12.5px;color:var(--text2);">This marks that you went back through this set for this subject — it resets its re-drill clock without changing your completion count.</div>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log review</button></div>';
     } else if (mode === "flag") {
       $("sheetTitle").textContent = "Flag a question";
@@ -541,10 +569,14 @@
       history.back();
     } else if (sheetMode === "newBook") {
       var title = $("fName").value.trim();
-      var total = parseInt($("fTotal").value, 10) || 0;
       var mode = $("chipMulti").classList.contains("on") ? "multi" : "single";
-      if (!title || !total) return;
-      addPracticeBook(title, mode, total);
+      if (!title) return;
+      addPracticeBook(title, mode);
+      history.back();
+    } else if (sheetMode === "setTotal") {
+      var total = parseInt($("fTotal").value, 10) || 0;
+      if (!total) return;
+      updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { totalQuestions: total });
       history.back();
     } else if (sheetMode === "pass") {
       var pdate = $("fDate").value || todayStr();
@@ -556,9 +588,10 @@
       updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { passes: passes });
       history.back();
     } else if (sheetMode === "progress") {
-      var book3 = getGlobalBook(sheetCtx.bookId);
+      var s3 = getSubject(sheetCtx.subjectId);
+      var prog3 = getProgress(s3, sheetCtx.bookId);
       var val = parseInt($("fCount").value, 10) || 0;
-      updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { completedQuestions: Math.min(val, book3.totalQuestions) });
+      updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { completedQuestions: Math.min(val, prog3.totalQuestions) });
       history.back();
     } else if (sheetMode === "reviewLog") {
       var rdate = $("fDate").value || todayStr();
@@ -606,11 +639,11 @@
     var title = "Revision Tracker", showBack = false;
     if (tab === "due") title = "Due Today";
     else if (tab === "stats") title = "Your Stats";
-    else if (tab === "books" && top.type === "list") title = "Practice Books";
-    else if (tab === "books" && top.type === "bookGlobalDetail") { var gb = getGlobalBook(top.bookId); title = gb ? gb.title : "Book"; showBack = true; }
+    else if (tab === "books" && top.type === "list") title = "PYQs";
+    else if (tab === "books" && top.type === "bookGlobalDetail") { var gb = getGlobalBook(top.bookId); title = gb ? gb.title : "PYQ set"; showBack = true; }
     else if (top.type === "list") title = "Subjects";
     else if (top.type === "detail") { var s = getSubject(top.subjectId); title = s ? s.name : "Subject"; showBack = true; }
-    else if (top.type === "bookDetail") { var b = getGlobalBook(top.bookId); title = b ? b.title : "Book"; showBack = true; }
+    else if (top.type === "bookDetail") { var b = getGlobalBook(top.bookId); title = b ? b.title : "PYQ set"; showBack = true; }
     var html = "";
     if (showBack) html += '<button class="back-btn" id="backBtn">‹</button>';
     html += '<span class="hdr-title serif">' + escapeHtml(title) + '</span>';
@@ -624,7 +657,8 @@
 
   // ---------- Due Today ----------
   function renderDue() {
-    var dueSubjects = subjects.filter(isDueToday).sort(function (a, b) { return daysSinceTouch(b) - daysSinceTouch(a); });
+    var main0 = mainSubject();
+    var dueSubjects = subjects.filter(isDueForRevision).sort(function (a, b) { return daysSinceTouch(b) - daysSinceTouch(a); });
     var dueBooks = [];
     subjects.forEach(function (s) {
       practiceBooks.forEach(function (b) {
@@ -636,38 +670,47 @@
     var html = '<div class="pane">';
     if (subjects.length === 0) {
       html += '<div class="empty">No subjects yet. Add one from the Subjects tab.</div>';
+      html += '</div>';
+      return html;
+    }
+
+    if (main0) {
+      var dayNum = daysBetween(subjCreatedDate(main0), todayStr()) + 1;
+      html += '<div class="spotlight" data-open="' + main0.id + '">' +
+        '<div class="spotlight-label">Main subject — first revision</div>' +
+        '<div class="spotlight-name serif">' + escapeHtml(main0.name) + '</div>' +
+        '<div class="spotlight-sub">Day ' + dayNum + ' · give this about a week before moving on</div>' +
+      '</div>';
+    }
+
+    html += '<div class="section-title">Subjects due for revision</div>';
+    if (dueSubjects.length === 0) {
+      html += '<div class="empty" style="padding:20px;">Nothing due — you\'re caught up. 🎉</div>';
     } else {
-      html += '<div class="section-title">Subjects due for revision</div>';
-      if (dueSubjects.length === 0) {
-        html += '<div class="empty" style="padding:20px;">Nothing due — you\'re caught up. 🎉</div>';
-      } else {
-        dueSubjects.forEach(function (s) {
-          var days = daysSinceTouch(s);
-          var overdue = daysBetween(nextDueDate(s), todayStr());
-          var curIdx = currentBookIndex(s);
-          var curBook = practiceBooks[curIdx];
-          html += '<div class="row" data-open="' + s.id + '">' +
-            '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
-            '<div class="row-sub">' + badgePill(days) + '<span>Rev ' + ((s.revisions||[]).length) + '</span>' +
-            (curBook ? '<span>· practicing: ' + escapeHtml(curBook.title) + '</span>' : '') + '</div></div>' +
-            '<span class="badge-pill badge-red">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
-          '</div>';
-        });
-      }
-      html += '<div class="section-title" style="margin-top:24px;">Books due for practice</div>';
-      if (dueBooks.length === 0) {
-        html += '<div class="empty" style="padding:20px;">No books due for a re-pass yet.</div>';
-      } else {
-        dueBooks.forEach(function (x) {
-          var due = bookNextDue(x.progress, x.book);
-          var overdue = daysBetween(due, todayStr());
-          html += '<div class="row" data-open="' + x.subject.id + '" data-open-book="' + x.book.id + '">' +
-            '<div class="row-main"><div class="row-title">' + escapeHtml(x.book.title) + '</div>' +
-            '<div class="row-sub">' + escapeHtml(x.subject.name) + '</div></div>' +
-            '<span class="badge-pill badge-red">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
-          '</div>';
-        });
-      }
+      dueSubjects.forEach(function (s) {
+        var days = daysSinceTouch(s);
+        var overdue = daysBetween(nextDueDate(s), todayStr());
+        html += '<div class="row" data-open="' + s.id + '">' +
+          '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
+          '<div class="row-sub">' + badgePill(days) + '<span>Rev ' + (s.revisions.length) + '</span></div></div>' +
+          '<span class="badge-pill badge-red">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
+        '</div>';
+      });
+    }
+
+    html += '<div class="section-title" style="margin-top:24px;">PYQ sets due for practice</div>';
+    if (dueBooks.length === 0) {
+      html += '<div class="empty" style="padding:20px;">Nothing due for a re-pass yet.</div>';
+    } else {
+      dueBooks.forEach(function (x) {
+        var due = bookNextDue(x.progress, x.book);
+        var overdue = daysBetween(due, todayStr());
+        html += '<div class="row" data-open="' + x.subject.id + '" data-open-book="' + x.book.id + '">' +
+          '<div class="row-main"><div class="row-title">' + escapeHtml(x.book.title) + '</div>' +
+          '<div class="row-sub">' + escapeHtml(x.subject.name) + '</div></div>' +
+          '<span class="badge-pill badge-red">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
+        '</div>';
+      });
     }
     html += '</div>';
     return html;
@@ -675,16 +718,25 @@
 
   // ---------- Subjects list ----------
   function renderList() {
-    var sorted = subjects.slice().sort(function (a,b) { return daysSinceTouch(b) - daysSinceTouch(a); });
+    var main0 = mainSubject();
+    var sorted = subjects.slice().sort(function (a,b) {
+      var da = daysSinceTouch(a), db2 = daysSinceTouch(b);
+      if (da === null && db2 === null) return 0;
+      if (da === null) return 1;
+      if (db2 === null) return -1;
+      return db2 - da;
+    });
     var html = '<div class="pane">';
     if (sorted.length === 0) {
       html += '<div class="empty">No subjects yet. Tap + to add your first one.</div>';
     } else {
       sorted.forEach(function (s) {
         var days = daysSinceTouch(s);
+        var isMain = main0 && s.id === main0.id;
         html += '<div class="row" data-open="' + s.id + '">' +
           '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
-          '<div class="row-sub">' + badgePill(days) + '<span>' + ((s.revisions||[]).length) + ' revisions</span></div></div>' +
+          '<div class="row-sub">' + (isMain ? '<span class="badge-pill badge-accent">revising now</span>' : badgePill(days)) +
+          '<span>' + (s.revisions.length) + ' revisions</span></div></div>' +
           '<span class="row-chevron">›</span>' +
         '</div>';
       });
@@ -698,18 +750,21 @@
     var s = getSubject(subjectId);
     if (!s) return '<div class="empty">Subject not found.</div>';
     var days = daysSinceTouch(s);
-    var revCount = (s.revisions || []).length;
-    var due = nextDueDate(s);
+    var revCount = s.revisions.length;
 
     var html = '<div class="pane">';
     html += '<div class="subj-title-row"><h2 class="serif">' + escapeHtml(s.name) + '</h2>' +
       '<button class="icon-btn" id="renameBtn">✎</button></div>';
-    html += '<div class="meta-line">' + revCount + ' revision' + (revCount===1?"":"s") + ' logged · Last touched: ' + badgePill(days) + '<br/>Next due ' + niceDate(due) + '</div>';
+    if (revCount === 0) {
+      html += '<div class="meta-line">Not revised yet · Started ' + niceDate(subjCreatedDate(s)) + '</div>';
+    } else {
+      html += '<div class="meta-line">' + revCount + ' revision' + (revCount===1?"":"s") + ' logged · Last touched: ' + badgePill(days) + '<br/>Next due ' + niceDate(nextDueDate(s)) + '</div>';
+    }
     html += '<button class="btn-outline-warn" id="deleteSubjBtn">Delete subject</button>';
 
     html += '<div class="pill-tabs">' +
       '<button class="pill-tab' + (subjectSubtab==="revision"?" on":"") + '" data-subtab="revision">Revision</button>' +
-      '<button class="pill-tab' + (subjectSubtab==="books"?" on":"") + '" data-subtab="books">Question Books</button>' +
+      '<button class="pill-tab' + (subjectSubtab==="books"?" on":"") + '" data-subtab="books">PYQs</button>' +
       '<button class="pill-tab' + (subjectSubtab==="mocks"?" on":"") + '" data-subtab="mocks">Mock Tests</button>' +
     '</div>';
 
@@ -729,30 +784,33 @@
       }
     } else if (subjectSubtab === "books") {
       var curIdx = currentBookIndex(s);
-      html += '<div class="section-title">Question books<span style="font-size:11.5px;color:var(--text2);font-weight:400;">Manage the book list from the Books tab</span></div>';
+      html += '<div class="section-title">PYQ sets<span style="font-size:11.5px;color:var(--text2);font-weight:400;">Manage the list from the PYQs tab</span></div>';
       if (practiceBooks.length === 0) {
-        html += '<div class="empty" style="padding:20px;">No practice books exist yet. Add one from the Books tab — it\'ll automatically apply here too.</div>';
+        html += '<div class="empty" style="padding:20px;">No PYQ sets exist yet. Add one from the PYQs tab — it\'ll automatically apply here too.</div>';
       } else {
         practiceBooks.forEach(function (b, i) {
           var prog = getProgress(s, b.id);
+          var notSetup = !prog.totalQuestions;
           var done = isBookDone(prog, b);
-          var pct, sub;
-          if (b.mode === "single") {
-            pct = b.totalQuestions ? Math.round((prog.completedQuestions||0)/b.totalQuestions*100) : 0;
-            sub = (prog.completedQuestions||0) + " / " + b.totalQuestions + " questions";
-          } else {
-            var passes = prog.passes || [];
-            var lastPass = passes[passes.length-1];
-            pct = lastPass ? Math.round((lastPass.questionsCovered||0)/b.totalQuestions*100) : 0;
-            sub = passes.length + " pass" + (passes.length===1?"":"es");
+          var pct = 0, sub = "Not set up for this subject yet";
+          if (!notSetup) {
+            if (b.mode === "single") {
+              pct = Math.round((prog.completedQuestions||0)/prog.totalQuestions*100);
+              sub = (prog.completedQuestions||0) + " / " + prog.totalQuestions + " questions";
+            } else {
+              var passes = prog.passes || [];
+              var lastPass = passes[passes.length-1];
+              pct = lastPass ? Math.round((lastPass.questionsCovered||0)/prog.totalQuestions*100) : 0;
+              sub = passes.length + " pass" + (passes.length===1?"":"es") + " · " + prog.totalQuestions + " questions";
+            }
           }
-          var statusBadge = done
-            ? (bookIsDue(prog, b) ? '<span class="badge-pill badge-red">due for re-practice</span>' : '<span class="badge-pill badge-good">completed</span>')
+          var statusBadge = notSetup ? '<span class="badge-pill badge-muted">needs setup</span>'
+            : done ? (bookIsDue(prog, b) ? '<span class="badge-pill badge-red">due for re-practice</span>' : '<span class="badge-pill badge-good">completed</span>')
             : (i === curIdx ? '<span class="badge-pill badge-accent">practicing now</span>' : '<span class="badge-pill badge-muted">not started yet</span>');
           html += '<div class="row" data-open-book="' + b.id + '">' +
             '<div class="row-main"><div class="row-title">' + escapeHtml(b.title) + '</div>' +
             '<div class="row-sub">' + statusBadge + '<span>' + sub + '</span></div>' +
-            '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%"></div></div></div>' +
+            (notSetup ? '' : '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%"></div></div>') + '</div>' +
             '<span class="row-chevron">›</span>' +
           '</div>';
         });
@@ -782,34 +840,42 @@
   function renderBookDetail(subjectId, bookId) {
     var s = getSubject(subjectId);
     var b = getGlobalBook(bookId);
-    if (!b || !s) return '<div class="empty">Book not found.</div>';
+    if (!b || !s) return '<div class="empty">Not found.</div>';
     var prog = getProgress(s, bookId);
-    var done = isBookDone(prog, b);
-    var last = bookLastPracticed(prog, b);
-    var due = bookNextDue(prog, b);
     var html = '<div class="pane">';
     html += '<div class="row-sub" style="margin-bottom:14px;">For subject: <strong style="color:var(--text);">' + escapeHtml(s.name) + '</strong></div>';
 
+    if (!prog.totalQuestions) {
+      html += '<div class="setup-card"><p>This PYQ set hasn\'t been set up for this subject yet — the number of questions can differ per subject, so set it once here.</p>' +
+        '<button class="btn" id="setTotalBtn">Set total questions</button></div>';
+      html += '</div>';
+      return html;
+    }
+
+    var done = isBookDone(prog, b);
+    var last = bookLastPracticed(prog, b);
+    var due = bookNextDue(prog, b);
+
     if (b.mode === "single") {
-      var pct = b.totalQuestions ? Math.round((prog.completedQuestions||0)/b.totalQuestions*100) : 0;
+      var pct = Math.round((prog.completedQuestions||0)/prog.totalQuestions*100);
       html += '<div class="metric-row"><div class="metric-card"><div class="metric-num">' + pct + '%</div><div class="metric-label">complete</div></div>' +
-        '<div class="metric-card"><div class="metric-num">' + (prog.completedQuestions||0) + '/' + b.totalQuestions + '</div><div class="metric-label">questions</div></div></div>';
+        '<div class="metric-card"><div class="metric-num">' + (prog.completedQuestions||0) + '/' + prog.totalQuestions + '</div><div class="metric-label">questions</div></div></div>';
       html += '<button class="btn" id="updateProgressBtn">Update progress</button>';
       html += '<div class="meta-line" style="margin-top:14px;">' + (done ? (last ? "Last reviewed " + niceDate(last) + " · Next review " + niceDate(due) : "Marked complete — log a review pass to start its re-drill clock") : "Not finished yet for this subject") + '</div>';
       if (done) html += '<button class="btn-outline-accent" id="reviewLogBtn">Log a review pass today</button>';
     } else {
-      html += '<div class="meta-line">' + (done ? "Last practiced " + niceDate(last) + " · Next due " + niceDate(due) : "Not finished yet for this subject") + '</div>';
+      html += '<div class="meta-line">' + (done ? "Last practiced " + niceDate(last) + " · Next due " + niceDate(due) : "Not finished yet for this subject (" + prog.totalQuestions + " questions total)") + '</div>';
       html += '<div class="section-title">Passes<button class="add-btn-sm" id="addPassBtn">+ Log pass</button></div>';
       var passes = prog.passes || [];
       if (passes.length === 0) html += '<div class="empty" style="padding:20px;">No passes logged yet.</div>';
       else passes.slice().sort(function(a,b2){return b2.date<a.date?-1:1;}).forEach(function (p) {
-        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' / ' + b.totalQuestions + ' Qs · ' + niceDate(p.date) + '</span></div>';
+        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' / ' + prog.totalQuestions + ' Qs · ' + niceDate(p.date) + '</span></div>';
       });
     }
     html += '<div class="section-title" style="margin-top:22px;">Flagged questions<button class="add-btn-sm" id="addFlagBtn">+ Add flag</button></div>';
     var flagged = prog.flagged || [];
     if (flagged.length === 0) {
-      html += '<div class="empty" style="padding:20px;">Nothing flagged. Add questions you got wrong here to re-drill them without redoing the whole book.</div>';
+      html += '<div class="empty" style="padding:20px;">Nothing flagged. Add questions you got wrong here to re-drill them without redoing the whole set.</div>';
     } else {
       flagged.forEach(function (f) {
         html += '<div class="flag-item">' +
@@ -836,17 +902,17 @@
     updateProgress(subjectId, bookId, { flagged: (prog.flagged || []).filter(function (f) { return f.id !== flagId; }) });
   }
 
-  // ---------- Books tab (global list) ----------
+  // ---------- PYQs tab (global list) ----------
   function renderBooksList() {
     var html = '<div class="pane">';
     if (practiceBooks.length === 0) {
-      html += '<div class="empty">No practice books yet. Tap + to add one — it\'ll automatically apply to every subject.</div>';
+      html += '<div class="empty">No PYQ sets yet. Tap + to add one — it\'ll automatically apply to every subject.</div>';
     } else {
       practiceBooks.forEach(function (b) {
         var doneCount = subjects.filter(function (s) { return isBookDone(getProgress(s, b.id), b); }).length;
         html += '<div class="row" data-open-global-book="' + b.id + '">' +
           '<div class="row-main"><div class="row-title">' + escapeHtml(b.title) + '</div>' +
-          '<div class="row-sub"><span>' + (b.mode==="single"?"Single-pass":"Multi-pass") + ' · ' + b.totalQuestions + ' questions</span>' +
+          '<div class="row-sub"><span>' + (b.mode==="single"?"Single-pass":"Multi-pass") + '</span>' +
           '<span>· ' + doneCount + '/' + subjects.length + ' subjects completed</span></div></div>' +
           '<span class="row-chevron">›</span>' +
         '</div>';
@@ -857,23 +923,27 @@
   }
   function renderGlobalBookDetail(bookId) {
     var b = getGlobalBook(bookId);
-    if (!b) return '<div class="empty">Book not found.</div>';
+    if (!b) return '<div class="empty">Not found.</div>';
     var html = '<div class="pane">';
-    html += '<div class="meta-line">' + (b.mode==="single"?"Single-pass":"Multi-pass") + ' · ' + b.totalQuestions + ' total questions</div>';
+    html += '<div class="meta-line">' + (b.mode==="single"?"Single-pass":"Multi-pass") + ' · question count is set per subject</div>';
     html += '<div class="section-title">Progress by subject</div>';
     if (subjects.length === 0) {
       html += '<div class="empty" style="padding:20px;">No subjects yet.</div>';
     } else {
       subjects.forEach(function (s) {
         var prog = getProgress(s, b.id);
-        var done = isBookDone(prog, b);
-        var badge = done
-          ? (bookIsDue(prog, b) ? '<span class="badge-pill badge-red">due for re-practice</span>' : '<span class="badge-pill badge-good">completed</span>')
-          : '<span class="badge-pill badge-muted">' + (b.mode==="single" ? (prog.completedQuestions||0) + "/" + b.totalQuestions : (prog.passes||[]).length + " passes") + '</span>';
+        var badge;
+        if (!prog.totalQuestions) badge = '<span class="badge-pill badge-muted">needs setup</span>';
+        else {
+          var done = isBookDone(prog, b);
+          badge = done
+            ? (bookIsDue(prog, b) ? '<span class="badge-pill badge-red">due for re-practice</span>' : '<span class="badge-pill badge-good">completed</span>')
+            : '<span class="badge-pill badge-muted">' + (b.mode==="single" ? (prog.completedQuestions||0) + "/" + prog.totalQuestions : (prog.passes||[]).length + " passes") + '</span>';
+        }
         html += '<div class="hist-item"><span>' + escapeHtml(s.name) + '</span>' + badge + '</div>';
       });
     }
-    html += '<button class="btn-delete" id="deleteGlobalBookBtn">Delete this book (removes it for all subjects)</button>';
+    html += '<button class="btn-delete" id="deleteGlobalBookBtn">Delete this PYQ set (removes it for all subjects)</button>';
     html += '</div>';
     return html;
   }
@@ -881,7 +951,7 @@
   // ---------- stats ----------
   function renderStats() {
     var total = subjects.length;
-    var dueCount = subjects.filter(isDueToday).length;
+    var dueCount = subjects.filter(isDueForRevision).length;
     var totalRevs = subjects.reduce(function (a,s) { return a + (s.revisions||[]).length; }, 0);
     var allMocks = [];
     subjects.forEach(function (s) { (s.mocks||[]).forEach(function (m) { allMocks.push(Object.assign({ subject: s.name }, m)); }); });
@@ -891,11 +961,11 @@
     html += '<div class="stat-row"><span>Total subjects</span><span class="n">' + total + '</span></div>';
     html += '<div class="stat-row"><span>Due today</span><span class="n">' + dueCount + '</span></div>';
     html += '<div class="stat-row"><span>Total revisions logged</span><span class="n">' + totalRevs + '</span></div>';
-    html += '<div class="stat-row"><span>Total practice books</span><span class="n">' + practiceBooks.length + '</span></div>';
+    html += '<div class="stat-row"><span>Total PYQ sets</span><span class="n">' + practiceBooks.length + '</span></div>';
     html += '<div class="stat-row"><span>Average mock accuracy</span><span class="n">' + (avgAcc===null?"–":avgAcc+"%") + '</span></div>';
 
     html += '<div class="section-title">Days since touch, by subject</div>';
-    subjects.slice().sort(function(a,b){return daysSinceTouch(b)-daysSinceTouch(a);}).forEach(function (s) {
+    subjects.slice().forEach(function (s) {
       var days = daysSinceTouch(s);
       html += '<div class="stat-row"><span>' + escapeHtml(s.name) + '</span>' + badgePill(days) + '</div>';
     });
@@ -928,7 +998,7 @@
         main.innerHTML = renderGlobalBookDetail(top.bookId);
         var delGB = $("deleteGlobalBookBtn");
         if (delGB) delGB.addEventListener("click", function () {
-          if (confirm("Delete this book for every subject? This can't be undone.")) { deletePracticeBook(top.bookId); goBack(); }
+          if (confirm("Delete this PYQ set for every subject? This can't be undone.")) { deletePracticeBook(top.bookId); goBack(); }
         });
       } else {
         main.innerHTML = renderBooksList();
@@ -974,6 +1044,8 @@
       });
     } else if (top.type === "bookDetail") {
       main.innerHTML = renderBookDetail(top.subjectId, top.bookId);
+      var setTotalBtn = $("setTotalBtn");
+      if (setTotalBtn) setTotalBtn.addEventListener("click", function () { openSheet("setTotal", { subjectId: top.subjectId, bookId: top.bookId }); });
       var upBtn = $("updateProgressBtn");
       if (upBtn) upBtn.addEventListener("click", function () { openSheet("progress", { subjectId: top.subjectId, bookId: top.bookId }); });
       var revLogBtn = $("reviewLogBtn");
