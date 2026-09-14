@@ -22,7 +22,6 @@
   .serif { font-family:Georgia,"Iowan Old Style","Times New Roman",serif; }
   #root { position:relative; display:flex; flex-direction:column; height:100vh; max-width:560px; margin:0 auto; background:var(--bg); }
 
-  /* auth */
   #authScreen { display:flex; flex-direction:column; justify-content:center; height:100%; padding:24px; }
   #authScreen h1 { font-size:26px; text-align:center; margin:0 0 6px; }
   #authScreen .sub { text-align:center; color:var(--text2); font-size:14px; margin-bottom:24px; }
@@ -34,7 +33,6 @@
   .auth-error { font-size:13px; text-align:center; margin-top:8px; min-height:16px; color:var(--warn); }
   #googleBtn { background:var(--surface2); color:var(--text); margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:8px; }
 
-  /* shell */
   #appScreen { display:none; flex-direction:column; height:100%; }
   header { padding:16px 16px 10px; display:flex; align-items:center; gap:10px; flex-shrink:0; min-height:34px; }
   .back-btn { background:none; border:none; color:var(--text); font-size:22px; cursor:pointer; padding:2px 6px 2px 0; }
@@ -42,12 +40,11 @@
   #logoutBtn { background:none; border:none; color:var(--text2); font-size:12px; cursor:pointer; padding:6px; }
   main { flex:1; overflow-y:auto; padding:2px 18px 96px; -webkit-overflow-scrolling:touch; }
   nav.tabs { display:flex; border-top:1px solid var(--surface2); background:var(--bg); padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px)); flex-shrink:0; }
-  .tab { flex:1; background:none; border:none; color:var(--text2); font-size:13px; padding:10px 0; cursor:pointer; border-radius:10px; }
+  .tab { flex:1; background:none; border:none; color:var(--text2); font-size:12px; padding:10px 0; cursor:pointer; border-radius:10px; }
   .tab.on { color:var(--accent); background:var(--surface); }
   .loading-msg { color:var(--text2); font-size:14px; text-align:center; padding:60px 20px; line-height:1.5; }
   .fab { position:absolute; right:20px; bottom:74px; width:52px; height:52px; border-radius:50%; background:var(--accent); color:#1B2320; font-size:26px; border:none; box-shadow:0 4px 14px rgba(0,0,0,0.35); cursor:pointer; line-height:1; z-index:5; }
 
-  /* rows */
   .row { display:flex; align-items:center; gap:12px; padding:14px 4px; border-bottom:1px solid var(--surface2); cursor:pointer; }
   .row-main { flex:1; min-width:0; }
   .row-title { font-size:15px; color:var(--text); }
@@ -57,20 +54,21 @@
   .mini-fill { height:100%; background:var(--accent); }
   .empty { text-align:center; color:var(--text2); font-size:14px; padding:50px 20px; line-height:1.6; }
 
-  /* colored status pills */
   .badge-pill { font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:20px; display:inline-block; }
   .badge-green { background:rgba(127,163,122,0.18); color:var(--good); }
   .badge-yellow { background:rgba(212,162,76,0.18); color:var(--accent); }
   .badge-red { background:rgba(193,102,107,0.2); color:var(--warn); }
   .badge-muted { background:var(--surface2); color:var(--text2); }
+  .badge-accent { background:rgba(212,162,76,0.18); color:var(--accent); }
+  .badge-good { background:rgba(127,163,122,0.18); color:var(--good); }
 
-  /* subject detail */
   .pane { padding-top:8px; }
   .subj-title-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
   .subj-title-row h2 { font-size:24px; margin:0; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .icon-btn { background:none; border:none; color:var(--text2); font-size:15px; cursor:pointer; padding:4px 6px; flex-shrink:0; }
   .meta-line { font-size:13.5px; color:var(--text2); margin-bottom:16px; line-height:2; }
   .btn-outline-warn { border:1px solid var(--warn); color:var(--warn); background:transparent; border-radius:10px; padding:9px 16px; font-size:13px; cursor:pointer; margin-bottom:20px; }
+  .btn-outline-accent { border:1px solid var(--accent); color:var(--accent); background:transparent; border-radius:10px; padding:9px 16px; font-size:13px; cursor:pointer; }
 
   .pill-tabs { display:flex; gap:8px; margin-bottom:18px; }
   .pill-tab { flex:1; padding:11px 0; border-radius:20px; border:1px solid var(--surface2); background:transparent; color:var(--text2); font-size:12.5px; cursor:pointer; text-align:center; }
@@ -88,10 +86,6 @@
   .log-interval { font-size:11px; color:var(--accent); }
   .log-remove { font-size:11.5px; color:var(--warn); background:none; border:none; cursor:pointer; padding:2px 4px; }
 
-  .catalog-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-  .catalog-chip { padding:7px 13px; border-radius:20px; border:1px solid var(--surface2); background:transparent; color:var(--text2); font-size:12.5px; cursor:pointer; }
-  .catalog-chip.on { border-color:var(--accent); color:var(--accent); background:rgba(212,162,76,0.1); }
-
   .hist-item { display:flex; justify-content:space-between; padding:9px 4px; border-bottom:1px solid var(--surface2); font-size:13px; color:var(--text2); gap:10px; }
   .hist-item .del { color:var(--warn); background:none; border:none; font-size:11.5px; cursor:pointer; flex-shrink:0; }
   .btn-delete { color:var(--warn); background:none; border:none; font-size:13px; cursor:pointer; padding:12px 0; width:100%; text-align:center; margin-top:26px; }
@@ -101,7 +95,6 @@
   .metric-num { font-size:22px; font-weight:600; }
   .metric-label { font-size:11px; color:var(--text2); margin-top:2px; }
 
-  /* flagged list */
   .flag-item { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--surface2); }
   .flag-label { flex:1; font-size:13.5px; }
   .flag-label.mastered { color:var(--text2); text-decoration:line-through; }
@@ -110,7 +103,6 @@
   .flag-toggle.on { border-color:var(--good); color:var(--good); }
   .flag-del { background:none; border:none; color:var(--text2); font-size:18px; cursor:pointer; padding:2px 6px; }
 
-  /* overlay / sheets */
   .overlay { position:absolute; inset:0; background:var(--bg); display:none; flex-direction:column; z-index:20; }
   .overlay.show { display:flex; }
   .overlay-header { padding:16px 16px 8px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
@@ -123,7 +115,6 @@
   .chip.on { border-color:var(--accent); color:var(--accent); }
   .sheet-actions { display:flex; gap:10px; margin-top:22px; }
 
-  /* stats */
   .stat-row { display:flex; justify-content:space-between; padding:12px 4px; border-bottom:1px solid var(--surface2); font-size:14px; }
   .stat-row .n { color:var(--accent); font-weight:600; }
   .bars { display:flex; gap:8px; align-items:flex-end; height:100px; padding:0 4px 12px; }
@@ -159,6 +150,7 @@
     <nav class="tabs">
       <button class="tab on" data-tab="due">Due Today</button>
       <button class="tab" data-tab="subjects">Subjects</button>
+      <button class="tab" data-tab="books">Books</button>
       <button class="tab" data-tab="stats">Stats</button>
     </nav>
 
@@ -220,15 +212,17 @@
     return (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)) + Date.now().toString(36);
   }
 
-  var REV_INTERVALS = [3, 7, 21, 45];   // theory revision schedule (days)
-  var BOOK_INTERVAL = 60;               // question books: minimum 2 months between full re-passes
+  // Revision schedule: aim for ~3x/month early on (every 10 days), at minimum 2x/month.
+  // The first three revisions are the important ones; after that, the gap can stretch to months.
+  var REV_INTERVALS = [10, 10, 60]; // interval AFTER rev 1, rev 2, rev 3
+  var BOOK_INTERVAL = 60;           // practice books: re-drill no sooner than ~2 months after finishing
 
   // ---------- state ----------
   var currentUser = null;
   var unsubSubjects = null;
-  var unsubCatalog = null;
+  var unsubBooks = null;
   var subjects = [];
-  var catalog = [];            // [{id, title}] global reusable book names
+  var practiceBooks = [];      // GLOBAL, shared across every subject: [{id, title, mode, totalQuestions, createdAt}]
   var tab = "due";
   var stack = [{ type: "list" }];
   var subjectSubtab = "revision"; // revision | books | mocks
@@ -294,20 +288,20 @@
       $("authScreen").style.display = "none";
       $("appScreen").style.display = "flex";
       subscribeSubjects();
-      subscribeCatalog();
+      subscribeBooks();
     } else {
       $("appScreen").style.display = "none";
       $("authScreen").style.display = "flex";
       if (unsubSubjects) { unsubSubjects(); unsubSubjects = null; }
-      if (unsubCatalog) { unsubCatalog(); unsubCatalog = null; }
-      subjects = []; catalog = [];
+      if (unsubBooks) { unsubBooks(); unsubBooks = null; }
+      subjects = []; practiceBooks = [];
     }
   });
   $("logoutBtn") && $("logoutBtn").addEventListener("click", function () { auth.signOut(); });
 
   // ---------- data ----------
   function subjectsCol() { return db.collection("users").doc(currentUser.uid).collection("subjects"); }
-  function catalogCol() { return db.collection("users").doc(currentUser.uid).collection("bookCatalog"); }
+  function booksCol() { return db.collection("users").doc(currentUser.uid).collection("practiceBooks"); }
 
   function subscribeSubjects() {
     if (unsubSubjects) unsubSubjects();
@@ -320,11 +314,13 @@
       $("main").innerHTML = '<div class="loading-msg">Couldn\'t load: ' + escapeHtml(err.message) + '</div>';
     });
   }
-  function subscribeCatalog() {
-    if (unsubCatalog) unsubCatalog();
-    unsubCatalog = catalogCol().onSnapshot(function (snap) {
-      catalog = [];
-      snap.forEach(function (doc) { catalog.push(Object.assign({ id: doc.id }, doc.data())); });
+  function subscribeBooks() {
+    if (unsubBooks) unsubBooks();
+    unsubBooks = booksCol().onSnapshot(function (snap) {
+      practiceBooks = [];
+      snap.forEach(function (doc) { practiceBooks.push(Object.assign({ id: doc.id }, doc.data())); });
+      practiceBooks.sort(function (a, b) { return (a.createdAt||"").localeCompare(b.createdAt||""); });
+      render();
     });
   }
   function saveSubject(subj) {
@@ -334,23 +330,37 @@
   }
   function addSubject(name) {
     var id = uid();
-    saveSubject({ id: id, name: name, createdAt: todayStr(), revisions: [], books: [], mocks: [] });
+    saveSubject({ id: id, name: name, createdAt: todayStr(), revisions: [], bookProgress: {}, mocks: [] });
   }
   function deleteSubject(id) { subjectsCol().doc(id).delete().catch(function (err) { alert("Couldn't delete: " + err.message); }); }
   function getSubject(id) { return subjects.filter(function (s) { return s.id === id; })[0]; }
 
-  function ensureCatalogEntry(title) {
-    var existing = catalog.filter(function (c) { return c.title.toLowerCase() === title.toLowerCase(); })[0];
-    if (existing) return existing.id;
+  function addPracticeBook(title, mode, total) {
     var id = uid();
-    catalogCol().doc(id).set({ title: title, createdAt: todayStr() }).catch(function () {});
-    catalog.push({ id: id, title: title });
-    return id;
+    booksCol().doc(id).set({ title: title, mode: mode, totalQuestions: total, createdAt: todayStr() + "T" + Date.now() })
+      .catch(function (err) { alert("Couldn't add book: " + err.message); });
+  }
+  function deletePracticeBook(bookId) {
+    booksCol().doc(bookId).delete().catch(function (err) { alert("Couldn't delete: " + err.message); });
+  }
+  function getGlobalBook(bookId) { return practiceBooks.filter(function (b) { return b.id === bookId; })[0]; }
+
+  // per-subject progress against a shared/global book — every subject automatically has
+  // an entry for every book that exists, defaulting to "not started" until touched
+  function getProgress(subj, bookId) {
+    var p = (subj.bookProgress || {})[bookId];
+    return p || { completedQuestions: 0, passes: [], flagged: [], reviewLog: [] };
+  }
+  function updateProgress(subjectId, bookId, patch) {
+    var s = getSubject(subjectId);
+    var bp = Object.assign({}, s.bookProgress || {});
+    bp[bookId] = Object.assign({}, getProgress(s, bookId), patch);
+    saveSubject(Object.assign({}, s, { bookProgress: bp }));
   }
 
   // ---------- spaced repetition: subjects (theory) ----------
   function nextInterval(revCount) {
-    if (revCount <= 0) return REV_INTERVALS[0];
+    if (revCount <= 0) return 0; // never revised yet -> due immediately
     if (revCount <= REV_INTERVALS.length) return REV_INTERVALS[revCount - 1];
     return REV_INTERVALS[REV_INTERVALS.length - 1] + (revCount - REV_INTERVALS.length) * 30;
   }
@@ -374,9 +384,9 @@
   function addRevision(subjectId, date, note) {
     var s = getSubject(subjectId);
     var revs = (s.revisions || []).slice();
-    var revNumber = revs.length + 1;
-    var interval = nextInterval(revNumber);
-    revs.push({ id: uid(), date: date, revNumber: revNumber, note: note || "", intervalApplied: interval });
+    revs.push({ id: uid(), date: date, note: note || "" });
+    revs.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    revs = revs.map(function (r, i) { return Object.assign({}, r, { revNumber: i + 1, intervalApplied: nextInterval(i + 1) }); });
     saveSubject(Object.assign({}, s, { revisions: revs }));
   }
   function removeRevision(subjectId, revId) {
@@ -388,18 +398,34 @@
   }
 
   // ---------- spaced repetition: books (practice) ----------
-  function bookLastPracticed(b) {
+  function isBookDone(progress, book) {
+    if (!book) return false;
+    if (book.mode === "single") return book.totalQuestions > 0 && (progress.completedQuestions || 0) >= book.totalQuestions;
+    var passes = progress.passes || [];
+    if (passes.length === 0) return false;
+    return (passes[passes.length - 1].questionsCovered || 0) >= book.totalQuestions;
+  }
+  function bookLastPracticed(progress, book) {
     var dates = [];
-    if (b.mode === "multi") (b.passes || []).forEach(function (p) { dates.push(p.date); });
-    else (b.reviewLog || []).forEach(function (r) { dates.push(r.date); });
+    if (book.mode === "multi") (progress.passes || []).forEach(function (p) { dates.push(p.date); });
+    else (progress.reviewLog || []).forEach(function (r) { dates.push(r.date); });
     if (dates.length === 0) return null;
     return dates.reduce(function (a, d) { return d > a ? d : a; }, dates[0]);
   }
-  function bookNextDue(b) {
-    var last = bookLastPracticed(b);
-    return last ? addDaysStr(last, BOOK_INTERVAL) : null;
+  function bookNextDue(progress, book) {
+    if (!isBookDone(progress, book)) return null; // only re-drill cycle applies once finished at least once
+    var last = bookLastPracticed(progress, book);
+    return last ? addDaysStr(last, BOOK_INTERVAL) : todayStr();
   }
-  function bookIsDue(b) { var due = bookNextDue(b); return due !== null && due <= todayStr(); }
+  function bookIsDue(progress, book) { var due = bookNextDue(progress, book); return due !== null && due <= todayStr(); }
+
+  // which book is "current" for a subject: first not-yet-finished book, in the order books were created
+  function currentBookIndex(subj) {
+    for (var i = 0; i < practiceBooks.length; i++) {
+      if (!isBookDone(getProgress(subj, practiceBooks[i].id), practiceBooks[i])) return i;
+    }
+    return practiceBooks.length; // all done
+  }
 
   // ---------- navigation ----------
   function push(view) { stack.push(view); history.pushState({ d: stack.length }, ""); render(); scrollTop(); }
@@ -421,8 +447,8 @@
   });
 
   $("fab").addEventListener("click", function () {
-    var top = stack[stack.length - 1];
-    openSheet("subject", {});
+    if (tab === "books") openSheet("newBook", {});
+    else openSheet("subject", {});
   });
 
   // ---------- sheet (add/edit forms) ----------
@@ -431,7 +457,7 @@
     var body = $("sheetBody"), html = "";
     if (mode === "subject") {
       $("sheetTitle").textContent = "Add subject";
-      html += '<div class="field-label">Subject name</div><input class="input" id="fName" placeholder="e.g. Organic Chemistry"/>';
+      html += '<div class="field-label">Subject name</div><input class="input" id="fName" placeholder="Enter subject name"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add subject</button></div>';
     } else if (mode === "renameSubject") {
       var s0 = getSubject(ctx.subjectId);
@@ -443,15 +469,11 @@
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
       html += '<div class="field-label">Note (optional)</div><textarea class="input" id="fNote" placeholder="What did you cover?"></textarea>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log revision</button></div>';
-    } else if (mode === "book") {
-      $("sheetTitle").textContent = "Add question book";
-      if (catalog.length > 0) {
-        html += '<div class="field-label">Use an existing book</div><div class="catalog-chips" id="catalogChips">';
-        catalog.forEach(function (c) { html += '<button class="catalog-chip" data-cat="' + c.id + '" data-title="' + escapeHtml(c.title) + '">' + escapeHtml(c.title) + '</button>'; });
-        html += '</div>';
-      }
-      html += '<div class="field-label">Book title</div><input class="input" id="fName" placeholder="e.g. Arihant Physics"/>';
-      html += '<div class="field-label">Total questions</div><input class="input" id="fTotal" type="number" placeholder="e.g. 500"/>';
+    } else if (mode === "newBook") {
+      $("sheetTitle").textContent = "New practice book";
+      html += '<div style="font-size:12.5px;color:var(--text2);margin-bottom:14px;">This book will automatically be tracked for every subject — each one keeps its own progress against it.</div>';
+      html += '<div class="field-label">Book title</div><input class="input" id="fName" placeholder="Enter book title"/>';
+      html += '<div class="field-label">Total questions</div><input class="input" id="fTotal" type="number" placeholder="Enter total number of questions"/>';
       html += '<div class="field-label">Type</div><div class="type-row">' +
         '<button class="chip on" id="chipSingle" data-mode="single">Single-pass</button>' +
         '<button class="chip" id="chipMulti" data-mode="multi">Multi-pass</button></div>';
@@ -459,46 +481,39 @@
     } else if (mode === "pass") {
       $("sheetTitle").textContent = "Log a pass";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
-      html += '<div class="field-label">Questions covered</div><input class="input" id="fCount" type="number" placeholder="e.g. 120"/>';
+      html += '<div class="field-label">Questions covered</div><input class="input" id="fCount" type="number" placeholder="Enter number of questions"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save pass</button></div>';
     } else if (mode === "progress") {
       $("sheetTitle").textContent = "Update progress";
-      var book = getBook(ctx.subjectId, ctx.bookId);
+      var book = getGlobalBook(ctx.bookId);
+      var prog = getProgress(getSubject(ctx.subjectId), ctx.bookId);
       html += '<div class="field-label">Questions completed (of ' + book.totalQuestions + ')</div>' +
-        '<input class="input" id="fCount" type="number" value="' + (book.completedQuestions || 0) + '"/>';
+        '<input class="input" id="fCount" type="number" value="' + (prog.completedQuestions || 0) + '"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
     } else if (mode === "reviewLog") {
       $("sheetTitle").textContent = "Log a review pass";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
-      html += '<div style="font-size:12.5px;color:var(--text2);">This just marks that you went back through this book — it resets its 2-month practice clock without changing your completion count.</div>';
+      html += '<div style="font-size:12.5px;color:var(--text2);">This marks that you went back through this book for this subject — it resets its re-drill clock without changing your completion count.</div>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log review</button></div>';
     } else if (mode === "flag") {
       $("sheetTitle").textContent = "Flag a question";
-      html += '<div class="field-label">Question number / label</div><input class="input" id="fName" placeholder="e.g. Q45"/>';
+      html += '<div class="field-label">Question number / label</div><input class="input" id="fName" placeholder="Enter question number or label"/>';
       html += '<div class="field-label">Note (optional)</div><textarea class="input" id="fNote" placeholder="What went wrong?"></textarea>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add flag</button></div>';
     } else if (mode === "mock") {
       $("sheetTitle").textContent = "Add mock result";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
-      html += '<div class="field-label">Score obtained</div><input class="input" id="fScore" type="number" placeholder="e.g. 78"/>';
-      html += '<div class="field-label">Total marks</div><input class="input" id="fTotalMarks" type="number" placeholder="e.g. 100"/>';
-      html += '<div class="field-label">Questions attempted</div><input class="input" id="fAttempted" type="number" placeholder="e.g. 45"/>';
-      html += '<div class="field-label">Correct answers</div><input class="input" id="fCorrect" type="number" placeholder="e.g. 38"/>';
+      html += '<div class="field-label">Score obtained</div><input class="input" id="fScore" type="number" placeholder="Enter score"/>';
+      html += '<div class="field-label">Total marks</div><input class="input" id="fTotalMarks" type="number" placeholder="Enter total marks"/>';
+      html += '<div class="field-label">Questions attempted</div><input class="input" id="fAttempted" type="number" placeholder="Enter attempted count"/>';
+      html += '<div class="field-label">Correct answers</div><input class="input" id="fCorrect" type="number" placeholder="Enter correct count"/>';
       html += '<div class="field-label">Negative mark per wrong answer (optional)</div><input class="input" id="fNeg" type="number" step="0.25" placeholder="e.g. 0.25"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add mock</button></div>';
     }
     body.innerHTML = html;
-    if (mode === "book") {
+    if (mode === "newBook") {
       $("chipSingle").addEventListener("click", function () { $("chipSingle").classList.add("on"); $("chipMulti").classList.remove("on"); });
       $("chipMulti").addEventListener("click", function () { $("chipMulti").classList.add("on"); $("chipSingle").classList.remove("on"); });
-      var chipsWrap = $("catalogChips");
-      if (chipsWrap) chipsWrap.querySelectorAll("[data-cat]").forEach(function (el) {
-        el.addEventListener("click", function () {
-          chipsWrap.querySelectorAll("[data-cat]").forEach(function (c) { c.classList.remove("on"); });
-          el.classList.add("on");
-          $("fName").value = el.getAttribute("data-title");
-        });
-      });
     }
     $("sheetSave").addEventListener("click", submitSheet);
     $("sheetOverlay").classList.add("show");
@@ -524,61 +539,44 @@
       var note = $("fNote").value.trim();
       addRevision(sheetCtx.subjectId, date, note);
       history.back();
-    } else if (sheetMode === "book") {
-      var subj = getSubject(sheetCtx.subjectId);
+    } else if (sheetMode === "newBook") {
       var title = $("fName").value.trim();
       var total = parseInt($("fTotal").value, 10) || 0;
       var mode = $("chipMulti").classList.contains("on") ? "multi" : "single";
       if (!title || !total) return;
-      var catalogId = ensureCatalogEntry(title);
-      var books = (subj.books || []).slice();
-      books.push({ id: uid(), catalogId: catalogId, title: title, mode: mode, totalQuestions: total, completedQuestions: 0, passes: [], flagged: [], reviewLog: [] });
-      saveSubject(Object.assign({}, subj, { books: books }));
+      addPracticeBook(title, mode, total);
       history.back();
     } else if (sheetMode === "pass") {
-      var subj2 = getSubject(sheetCtx.subjectId);
       var pdate = $("fDate").value || todayStr();
       var count = parseInt($("fCount").value, 10) || 0;
-      var books2 = subj2.books.map(function (b) {
-        if (b.id !== sheetCtx.bookId) return b;
-        var passes = (b.passes || []).slice();
-        passes.push({ passNumber: passes.length + 1, date: pdate, questionsCovered: count });
-        return Object.assign({}, b, { passes: passes });
-      });
-      saveSubject(Object.assign({}, subj2, { books: books2 }));
+      var s2 = getSubject(sheetCtx.subjectId);
+      var prog2 = getProgress(s2, sheetCtx.bookId);
+      var passes = (prog2.passes || []).slice();
+      passes.push({ passNumber: passes.length + 1, date: pdate, questionsCovered: count });
+      updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { passes: passes });
       history.back();
     } else if (sheetMode === "progress") {
-      var subj3 = getSubject(sheetCtx.subjectId);
+      var book3 = getGlobalBook(sheetCtx.bookId);
       var val = parseInt($("fCount").value, 10) || 0;
-      var books3 = subj3.books.map(function (b) {
-        if (b.id !== sheetCtx.bookId) return b;
-        return Object.assign({}, b, { completedQuestions: Math.min(val, b.totalQuestions) });
-      });
-      saveSubject(Object.assign({}, subj3, { books: books3 }));
+      updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { completedQuestions: Math.min(val, book3.totalQuestions) });
       history.back();
     } else if (sheetMode === "reviewLog") {
-      var subjR = getSubject(sheetCtx.subjectId);
       var rdate = $("fDate").value || todayStr();
-      var booksR = subjR.books.map(function (b) {
-        if (b.id !== sheetCtx.bookId) return b;
-        var log = (b.reviewLog || []).slice();
-        log.push({ date: rdate });
-        return Object.assign({}, b, { reviewLog: log });
-      });
-      saveSubject(Object.assign({}, subjR, { books: booksR }));
+      var s4 = getSubject(sheetCtx.subjectId);
+      var prog4 = getProgress(s4, sheetCtx.bookId);
+      var log = (prog4.reviewLog || []).slice();
+      log.push({ date: rdate });
+      updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { reviewLog: log });
       history.back();
     } else if (sheetMode === "flag") {
-      var subj4 = getSubject(sheetCtx.subjectId);
       var label = $("fName").value.trim();
       if (!label) return;
       var note4 = $("fNote").value.trim();
-      var books4 = subj4.books.map(function (b) {
-        if (b.id !== sheetCtx.bookId) return b;
-        var flagged = (b.flagged || []).slice();
-        flagged.push({ id: uid(), label: label, note: note4, mastered: false });
-        return Object.assign({}, b, { flagged: flagged });
-      });
-      saveSubject(Object.assign({}, subj4, { books: books4 }));
+      var s5 = getSubject(sheetCtx.subjectId);
+      var prog5 = getProgress(s5, sheetCtx.bookId);
+      var flagged = (prog5.flagged || []).slice();
+      flagged.push({ id: uid(), label: label, note: note4, mastered: false });
+      updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { flagged: flagged });
       history.back();
     } else if (sheetMode === "mock") {
       var subj5 = getSubject(sheetCtx.subjectId);
@@ -597,14 +595,6 @@
     }
   }
 
-  function getBook(subjectId, bookId) {
-    var s = getSubject(subjectId);
-    return s && s.books.filter(function (b) { return b.id === bookId; })[0];
-  }
-  function deleteBook(subjectId, bookId) {
-    var s = getSubject(subjectId);
-    saveSubject(Object.assign({}, s, { books: s.books.filter(function (b) { return b.id !== bookId; }) }));
-  }
   function deleteMock(subjectId, mockId) {
     var s = getSubject(subjectId);
     saveSubject(Object.assign({}, s, { mocks: s.mocks.filter(function (m) { return m.id !== mockId; }) }));
@@ -616,9 +606,11 @@
     var title = "Revision Tracker", showBack = false;
     if (tab === "due") title = "Due Today";
     else if (tab === "stats") title = "Your Stats";
+    else if (tab === "books" && top.type === "list") title = "Practice Books";
+    else if (tab === "books" && top.type === "bookGlobalDetail") { var gb = getGlobalBook(top.bookId); title = gb ? gb.title : "Book"; showBack = true; }
     else if (top.type === "list") title = "Subjects";
     else if (top.type === "detail") { var s = getSubject(top.subjectId); title = s ? s.name : "Subject"; showBack = true; }
-    else if (top.type === "bookDetail") { var b = getBook(top.subjectId, top.bookId); title = b ? b.title : "Book"; showBack = true; }
+    else if (top.type === "bookDetail") { var b = getGlobalBook(top.bookId); title = b ? b.title : "Book"; showBack = true; }
     var html = "";
     if (showBack) html += '<button class="back-btn" id="backBtn">‹</button>';
     html += '<span class="hdr-title serif">' + escapeHtml(title) + '</span>';
@@ -627,14 +619,19 @@
     var backBtn = $("backBtn");
     if (backBtn) backBtn.addEventListener("click", goBack);
     $("logoutBtn").addEventListener("click", function () { auth.signOut(); });
-    $("fab").style.display = (tab === "subjects" && top.type === "list") ? "flex" : "none";
+    $("fab").style.display = ((tab === "subjects" && top.type === "list") || (tab === "books" && top.type === "list")) ? "flex" : "none";
   }
 
   // ---------- Due Today ----------
   function renderDue() {
     var dueSubjects = subjects.filter(isDueToday).sort(function (a, b) { return daysSinceTouch(b) - daysSinceTouch(a); });
     var dueBooks = [];
-    subjects.forEach(function (s) { (s.books || []).forEach(function (b) { if (bookIsDue(b)) dueBooks.push({ subject: s, book: b }); }); });
+    subjects.forEach(function (s) {
+      practiceBooks.forEach(function (b) {
+        var prog = getProgress(s, b.id);
+        if (bookIsDue(prog, b)) dueBooks.push({ subject: s, book: b, progress: prog });
+      });
+    });
 
     var html = '<div class="pane">';
     if (subjects.length === 0) {
@@ -647,9 +644,12 @@
         dueSubjects.forEach(function (s) {
           var days = daysSinceTouch(s);
           var overdue = daysBetween(nextDueDate(s), todayStr());
+          var curIdx = currentBookIndex(s);
+          var curBook = practiceBooks[curIdx];
           html += '<div class="row" data-open="' + s.id + '">' +
             '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
-            '<div class="row-sub">' + badgePill(days) + '<span>Rev ' + ((s.revisions||[]).length) + '</span></div></div>' +
+            '<div class="row-sub">' + badgePill(days) + '<span>Rev ' + ((s.revisions||[]).length) + '</span>' +
+            (curBook ? '<span>· practicing: ' + escapeHtml(curBook.title) + '</span>' : '') + '</div></div>' +
             '<span class="badge-pill badge-red">' + (overdue > 0 ? overdue + "d overdue" : "due") + '</span>' +
           '</div>';
         });
@@ -659,7 +659,7 @@
         html += '<div class="empty" style="padding:20px;">No books due for a re-pass yet.</div>';
       } else {
         dueBooks.forEach(function (x) {
-          var due = bookNextDue(x.book);
+          var due = bookNextDue(x.progress, x.book);
           var overdue = daysBetween(due, todayStr());
           html += '<div class="row" data-open="' + x.subject.id + '" data-open-book="' + x.book.id + '">' +
             '<div class="row-main"><div class="row-title">' + escapeHtml(x.book.title) + '</div>' +
@@ -684,7 +684,7 @@
         var days = daysSinceTouch(s);
         html += '<div class="row" data-open="' + s.id + '">' +
           '<div class="row-main"><div class="row-title">' + escapeHtml(s.name) + '</div>' +
-          '<div class="row-sub">' + badgePill(days) + '<span>' + ((s.revisions||[]).length) + ' revisions · ' + ((s.books||[]).length) + ' books</span></div></div>' +
+          '<div class="row-sub">' + badgePill(days) + '<span>' + ((s.revisions||[]).length) + ' revisions</span></div></div>' +
           '<span class="row-chevron">›</span>' +
         '</div>';
       });
@@ -728,26 +728,30 @@
         });
       }
     } else if (subjectSubtab === "books") {
-      html += '<div class="section-title">Question books<button class="add-btn-sm" id="addBookBtn">+ Add book</button></div>';
-      if (!s.books || s.books.length === 0) {
-        html += '<div class="empty" style="padding:20px;">No books added yet.</div>';
+      var curIdx = currentBookIndex(s);
+      html += '<div class="section-title">Question books<span style="font-size:11.5px;color:var(--text2);font-weight:400;">Manage the book list from the Books tab</span></div>';
+      if (practiceBooks.length === 0) {
+        html += '<div class="empty" style="padding:20px;">No practice books exist yet. Add one from the Books tab — it\'ll automatically apply here too.</div>';
       } else {
-        s.books.forEach(function (b) {
+        practiceBooks.forEach(function (b, i) {
+          var prog = getProgress(s, b.id);
+          var done = isBookDone(prog, b);
           var pct, sub;
           if (b.mode === "single") {
-            pct = b.totalQuestions ? Math.round((b.completedQuestions||0)/b.totalQuestions*100) : 0;
-            sub = (b.completedQuestions||0) + " / " + b.totalQuestions + " questions";
+            pct = b.totalQuestions ? Math.round((prog.completedQuestions||0)/b.totalQuestions*100) : 0;
+            sub = (prog.completedQuestions||0) + " / " + b.totalQuestions + " questions";
           } else {
-            var passes = b.passes || [];
+            var passes = prog.passes || [];
             var lastPass = passes[passes.length-1];
             pct = lastPass ? Math.round((lastPass.questionsCovered||0)/b.totalQuestions*100) : 0;
-            var flaggedOpen = (b.flagged||[]).filter(function(f){return !f.mastered;}).length;
-            sub = passes.length + " pass" + (passes.length===1?"":"es") + " · " + flaggedOpen + " flagged";
+            sub = passes.length + " pass" + (passes.length===1?"":"es");
           }
-          var due2 = bookNextDue(b);
+          var statusBadge = done
+            ? (bookIsDue(prog, b) ? '<span class="badge-pill badge-red">due for re-practice</span>' : '<span class="badge-pill badge-good">completed</span>')
+            : (i === curIdx ? '<span class="badge-pill badge-accent">practicing now</span>' : '<span class="badge-pill badge-muted">not started yet</span>');
           html += '<div class="row" data-open-book="' + b.id + '">' +
             '<div class="row-main"><div class="row-title">' + escapeHtml(b.title) + '</div>' +
-            '<div class="row-sub"><span>' + sub + '</span>' + (bookIsDue(b) ? '<span class="badge-pill badge-red">due for practice</span>' : (due2 ? '<span class="badge-pill badge-muted">next: ' + niceDate(due2) + '</span>' : '')) + '</div>' +
+            '<div class="row-sub">' + statusBadge + '<span>' + sub + '</span></div>' +
             '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%"></div></div></div>' +
             '<span class="row-chevron">›</span>' +
           '</div>';
@@ -774,32 +778,36 @@
     return html;
   }
 
-  // ---------- Book detail ----------
+  // ---------- Book detail (per subject) ----------
   function renderBookDetail(subjectId, bookId) {
-    var b = getBook(subjectId, bookId);
-    if (!b) return '<div class="empty">Book not found.</div>';
-    var last = bookLastPracticed(b);
-    var due = bookNextDue(b);
+    var s = getSubject(subjectId);
+    var b = getGlobalBook(bookId);
+    if (!b || !s) return '<div class="empty">Book not found.</div>';
+    var prog = getProgress(s, bookId);
+    var done = isBookDone(prog, b);
+    var last = bookLastPracticed(prog, b);
+    var due = bookNextDue(prog, b);
     var html = '<div class="pane">';
+    html += '<div class="row-sub" style="margin-bottom:14px;">For subject: <strong style="color:var(--text);">' + escapeHtml(s.name) + '</strong></div>';
 
     if (b.mode === "single") {
-      var pct = b.totalQuestions ? Math.round((b.completedQuestions||0)/b.totalQuestions*100) : 0;
+      var pct = b.totalQuestions ? Math.round((prog.completedQuestions||0)/b.totalQuestions*100) : 0;
       html += '<div class="metric-row"><div class="metric-card"><div class="metric-num">' + pct + '%</div><div class="metric-label">complete</div></div>' +
-        '<div class="metric-card"><div class="metric-num">' + (b.completedQuestions||0) + '/' + b.totalQuestions + '</div><div class="metric-label">questions</div></div></div>';
+        '<div class="metric-card"><div class="metric-num">' + (prog.completedQuestions||0) + '/' + b.totalQuestions + '</div><div class="metric-label">questions</div></div></div>';
       html += '<button class="btn" id="updateProgressBtn">Update progress</button>';
-      html += '<div class="meta-line" style="margin-top:14px;">' + (last ? "Last reviewed " + niceDate(last) + " · Next review " + niceDate(due) : "Not yet marked as reviewed — question books get re-drilled at least every 2 months") + '</div>';
-      html += '<button class="btn-outline-warn" id="reviewLogBtn" style="border-color:var(--accent);color:var(--accent);">Log a review pass today</button>';
+      html += '<div class="meta-line" style="margin-top:14px;">' + (done ? (last ? "Last reviewed " + niceDate(last) + " · Next review " + niceDate(due) : "Marked complete — log a review pass to start its re-drill clock") : "Not finished yet for this subject") + '</div>';
+      if (done) html += '<button class="btn-outline-accent" id="reviewLogBtn">Log a review pass today</button>';
     } else {
-      html += '<div class="meta-line">' + (last ? "Last practiced " + niceDate(last) + " · Next due " + niceDate(due) : "No passes logged yet — question books get re-drilled at least every 2 months") + '</div>';
+      html += '<div class="meta-line">' + (done ? "Last practiced " + niceDate(last) + " · Next due " + niceDate(due) : "Not finished yet for this subject") + '</div>';
       html += '<div class="section-title">Passes<button class="add-btn-sm" id="addPassBtn">+ Log pass</button></div>';
-      var passes = b.passes || [];
+      var passes = prog.passes || [];
       if (passes.length === 0) html += '<div class="empty" style="padding:20px;">No passes logged yet.</div>';
       else passes.slice().sort(function(a,b2){return b2.date<a.date?-1:1;}).forEach(function (p) {
-        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' Qs · ' + niceDate(p.date) + '</span></div>';
+        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' / ' + b.totalQuestions + ' Qs · ' + niceDate(p.date) + '</span></div>';
       });
     }
     html += '<div class="section-title" style="margin-top:22px;">Flagged questions<button class="add-btn-sm" id="addFlagBtn">+ Add flag</button></div>';
-    var flagged = b.flagged || [];
+    var flagged = prog.flagged || [];
     if (flagged.length === 0) {
       html += '<div class="empty" style="padding:20px;">Nothing flagged. Add questions you got wrong here to re-drill them without redoing the whole book.</div>';
     } else {
@@ -812,27 +820,62 @@
         '</div>';
       });
     }
-    html += '<button class="btn-delete" id="deleteBookBtn">Delete this book</button>';
     html += '</div>';
     return html;
   }
 
   function toggleFlag(subjectId, bookId, flagId) {
     var s = getSubject(subjectId);
-    var books = s.books.map(function (b) {
-      if (b.id !== bookId) return b;
-      var flagged = b.flagged.map(function (f) { return f.id === flagId ? Object.assign({}, f, { mastered: !f.mastered }) : f; });
-      return Object.assign({}, b, { flagged: flagged });
-    });
-    saveSubject(Object.assign({}, s, { books: books }));
+    var prog = getProgress(s, bookId);
+    var flagged = (prog.flagged || []).map(function (f) { return f.id === flagId ? Object.assign({}, f, { mastered: !f.mastered }) : f; });
+    updateProgress(subjectId, bookId, { flagged: flagged });
   }
   function deleteFlag(subjectId, bookId, flagId) {
     var s = getSubject(subjectId);
-    var books = s.books.map(function (b) {
-      if (b.id !== bookId) return b;
-      return Object.assign({}, b, { flagged: b.flagged.filter(function (f) { return f.id !== flagId; }) });
-    });
-    saveSubject(Object.assign({}, s, { books: books }));
+    var prog = getProgress(s, bookId);
+    updateProgress(subjectId, bookId, { flagged: (prog.flagged || []).filter(function (f) { return f.id !== flagId; }) });
+  }
+
+  // ---------- Books tab (global list) ----------
+  function renderBooksList() {
+    var html = '<div class="pane">';
+    if (practiceBooks.length === 0) {
+      html += '<div class="empty">No practice books yet. Tap + to add one — it\'ll automatically apply to every subject.</div>';
+    } else {
+      practiceBooks.forEach(function (b) {
+        var doneCount = subjects.filter(function (s) { return isBookDone(getProgress(s, b.id), b); }).length;
+        html += '<div class="row" data-open-global-book="' + b.id + '">' +
+          '<div class="row-main"><div class="row-title">' + escapeHtml(b.title) + '</div>' +
+          '<div class="row-sub"><span>' + (b.mode==="single"?"Single-pass":"Multi-pass") + ' · ' + b.totalQuestions + ' questions</span>' +
+          '<span>· ' + doneCount + '/' + subjects.length + ' subjects completed</span></div></div>' +
+          '<span class="row-chevron">›</span>' +
+        '</div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+  function renderGlobalBookDetail(bookId) {
+    var b = getGlobalBook(bookId);
+    if (!b) return '<div class="empty">Book not found.</div>';
+    var html = '<div class="pane">';
+    html += '<div class="meta-line">' + (b.mode==="single"?"Single-pass":"Multi-pass") + ' · ' + b.totalQuestions + ' total questions</div>';
+    html += '<div class="section-title">Progress by subject</div>';
+    if (subjects.length === 0) {
+      html += '<div class="empty" style="padding:20px;">No subjects yet.</div>';
+    } else {
+      subjects.forEach(function (s) {
+        var prog = getProgress(s, b.id);
+        var done = isBookDone(prog, b);
+        var badge = done
+          ? (bookIsDue(prog, b) ? '<span class="badge-pill badge-red">due for re-practice</span>' : '<span class="badge-pill badge-good">completed</span>')
+          : '<span class="badge-pill badge-muted">' + (b.mode==="single" ? (prog.completedQuestions||0) + "/" + b.totalQuestions : (prog.passes||[]).length + " passes") + '</span>';
+        html += '<div class="hist-item"><span>' + escapeHtml(s.name) + '</span>' + badge + '</div>';
+      });
+    }
+    html += '<button class="btn-delete" id="deleteGlobalBookBtn">Delete this book (removes it for all subjects)</button>';
+    html += '</div>';
+    return html;
   }
 
   // ---------- stats ----------
@@ -848,6 +891,7 @@
     html += '<div class="stat-row"><span>Total subjects</span><span class="n">' + total + '</span></div>';
     html += '<div class="stat-row"><span>Due today</span><span class="n">' + dueCount + '</span></div>';
     html += '<div class="stat-row"><span>Total revisions logged</span><span class="n">' + totalRevs + '</span></div>';
+    html += '<div class="stat-row"><span>Total practice books</span><span class="n">' + practiceBooks.length + '</span></div>';
     html += '<div class="stat-row"><span>Average mock accuracy</span><span class="n">' + (avgAcc===null?"–":avgAcc+"%") + '</span></div>';
 
     html += '<div class="section-title">Days since touch, by subject</div>';
@@ -879,6 +923,22 @@
     if (tab === "due") { main.innerHTML = renderDue(); wireDueOpen(); return; }
     if (tab === "stats") { main.innerHTML = renderStats(); return; }
 
+    if (tab === "books") {
+      if (top.type === "bookGlobalDetail") {
+        main.innerHTML = renderGlobalBookDetail(top.bookId);
+        var delGB = $("deleteGlobalBookBtn");
+        if (delGB) delGB.addEventListener("click", function () {
+          if (confirm("Delete this book for every subject? This can't be undone.")) { deletePracticeBook(top.bookId); goBack(); }
+        });
+      } else {
+        main.innerHTML = renderBooksList();
+        document.querySelectorAll("[data-open-global-book]").forEach(function (el) {
+          el.addEventListener("click", function () { push({ type: "bookGlobalDetail", bookId: el.getAttribute("data-open-global-book") }); });
+        });
+      }
+      return;
+    }
+
     if (top.type === "list") {
       main.innerHTML = renderList();
       document.querySelectorAll("[data-open]").forEach(function (el) {
@@ -902,8 +962,6 @@
           if (confirm("Remove this revision entry?")) removeRevision(top.subjectId, el.getAttribute("data-del-rev"));
         });
       });
-      var addBookBtn = $("addBookBtn");
-      if (addBookBtn) addBookBtn.addEventListener("click", function () { openSheet("book", { subjectId: top.subjectId }); });
       var addMockBtn = $("addMockBtn");
       if (addMockBtn) addMockBtn.addEventListener("click", function () { openSheet("mock", { subjectId: top.subjectId }); });
       document.querySelectorAll("[data-del-mock]").forEach(function (el) {
@@ -924,10 +982,6 @@
       if (addPassBtn) addPassBtn.addEventListener("click", function () { openSheet("pass", { subjectId: top.subjectId, bookId: top.bookId }); });
       var addFlagBtn = $("addFlagBtn");
       if (addFlagBtn) addFlagBtn.addEventListener("click", function () { openSheet("flag", { subjectId: top.subjectId, bookId: top.bookId }); });
-      var delBookBtn = $("deleteBookBtn");
-      if (delBookBtn) delBookBtn.addEventListener("click", function () {
-        if (confirm("Delete this book and all its progress? This can't be undone.")) { deleteBook(top.subjectId, top.bookId); goBack(); }
-      });
       document.querySelectorAll("[data-toggle-flag]").forEach(function (el) {
         el.addEventListener("click", function () { toggleFlag(top.subjectId, top.bookId, el.getAttribute("data-toggle-flag")); });
       });
