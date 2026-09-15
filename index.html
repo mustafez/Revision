@@ -230,6 +230,8 @@
   var currentUser = null;
   var unsubSubjects = null;
   var unsubBooks = null;
+  var unsubSettings = null;
+  var userSettings = { mainSubjectId: null };
   var subjects = [];
   var practiceBooks = [];      // GLOBAL, shared across every subject: [{id, title, mode, createdAt}] — no question count here
   var tab = "due";
@@ -298,12 +300,14 @@
       $("appScreen").style.display = "flex";
       subscribeSubjects();
       subscribeBooks();
+      subscribeSettings();
     } else {
       $("appScreen").style.display = "none";
       $("authScreen").style.display = "flex";
       if (unsubSubjects) { unsubSubjects(); unsubSubjects = null; }
       if (unsubBooks) { unsubBooks(); unsubBooks = null; }
-      subjects = []; practiceBooks = [];
+      if (unsubSettings) { unsubSettings(); unsubSettings = null; }
+      subjects = []; practiceBooks = []; userSettings = { mainSubjectId: null };
     }
   });
   $("logoutBtn") && $("logoutBtn").addEventListener("click", function () { auth.signOut(); });
@@ -332,6 +336,18 @@
       practiceBooks.sort(function (a, b) { return (a.createdAt||"").localeCompare(b.createdAt||""); });
       render();
     });
+  }
+  function subscribeSettings() {
+    if (unsubSettings) unsubSettings();
+    unsubSettings = db.collection("users").doc(currentUser.uid).onSnapshot(function (doc) {
+      var d = doc.data() || {};
+      userSettings.mainSubjectId = d.mainSubjectId || null;
+      render();
+    });
+  }
+  function setMainSubject(subjectId) {
+    db.collection("users").doc(currentUser.uid).set({ mainSubjectId: subjectId }, { merge: true })
+      .catch(function (err) { alert("Couldn't save: " + err.message); });
   }
   function saveSubject(subj) {
     var data = Object.assign({}, subj);
@@ -376,6 +392,10 @@
     return subjects.filter(function (s) { return (s.revisions || []).length === 0; });
   }
   function mainSubject() {
+    if (userSettings.mainSubjectId) {
+      var chosen = getSubject(userSettings.mainSubjectId);
+      if (chosen) return chosen;
+    }
     var q = firstPassQueue();
     return q.length ? q[0] : null;
   }
@@ -675,11 +695,18 @@
     }
 
     if (main0) {
-      var dayNum = daysBetween(subjCreatedDate(main0), todayStr()) + 1;
+      var isChosen = userSettings.mainSubjectId === main0.id;
+      var subLine;
+      if (main0.revisions.length === 0) {
+        var dayNum = daysBetween(subjCreatedDate(main0), todayStr()) + 1;
+        subLine = "Day " + dayNum + " · give this about a week before moving on";
+      } else {
+        subLine = "Last touched " + badgePill(daysSinceTouch(main0));
+      }
       html += '<div class="spotlight" data-open="' + main0.id + '">' +
-        '<div class="spotlight-label">Main subject — first revision</div>' +
+        '<div class="spotlight-label">' + (isChosen ? "Main subject — your pick" : "Main subject — first revision") + '</div>' +
         '<div class="spotlight-name serif">' + escapeHtml(main0.name) + '</div>' +
-        '<div class="spotlight-sub">Day ' + dayNum + ' · give this about a week before moving on</div>' +
+        '<div class="spotlight-sub">' + subLine + '</div>' +
       '</div>';
     }
 
@@ -752,6 +779,7 @@
     var days = daysSinceTouch(s);
     var revCount = s.revisions.length;
 
+    var isMain = userSettings.mainSubjectId === s.id;
     var html = '<div class="pane">';
     html += '<div class="subj-title-row"><h2 class="serif">' + escapeHtml(s.name) + '</h2>' +
       '<button class="icon-btn" id="renameBtn">✎</button></div>';
@@ -760,6 +788,8 @@
     } else {
       html += '<div class="meta-line">' + revCount + ' revision' + (revCount===1?"":"s") + ' logged · Last touched: ' + badgePill(days) + '<br/>Next due ' + niceDate(nextDueDate(s)) + '</div>';
     }
+    html += '<button class="btn-outline-accent" id="mainToggleBtn" style="display:block;margin-bottom:10px;' + (isMain ? '' : 'opacity:0.75;') + '">' +
+      (isMain ? '★ Main subject — tap to unset' : '☆ Set as main subject') + '</button>';
     html += '<button class="btn-outline-warn" id="deleteSubjBtn">Delete subject</button>';
 
     html += '<div class="pill-tabs">' +
@@ -1018,6 +1048,10 @@
       main.innerHTML = renderDetail(top.subjectId);
       var renameBtn = $("renameBtn");
       if (renameBtn) renameBtn.addEventListener("click", function () { openSheet("renameSubject", { subjectId: top.subjectId }); });
+      var mainToggleBtn = $("mainToggleBtn");
+      if (mainToggleBtn) mainToggleBtn.addEventListener("click", function () {
+        setMainSubject(userSettings.mainSubjectId === top.subjectId ? null : top.subjectId);
+      });
       var delBtn = $("deleteSubjBtn");
       if (delBtn) delBtn.addEventListener("click", function () {
         if (confirm("Delete this subject and all its data? This can't be undone.")) { deleteSubject(top.subjectId); goBack(); }
