@@ -223,7 +223,10 @@
   // Revision schedule for SUBJECTS THAT HAVE ALREADY HAD THEIR FIRST PASS:
   // aim for ~3x/month early on (every 10 days), at minimum 2x/month. The first three
   // revisions are the important ones; after that, the gap can stretch to months.
-  var REV_INTERVALS = [10, 10, 60];
+  // Real spaced-repetition schedule, based on the Ebbinghaus forgetting curve and the
+  // expanding intervals used by systems like SuperMemo/Anki: short gaps at first, then
+  // rapidly widening. This applies ONLY to subject theory revision, not PYQ sets.
+  var REV_INTERVALS = [1, 3, 7, 14, 30, 60, 90]; // days until the next revision, after rev 1,2,3...
   var BOOK_INTERVAL = 60; // PYQ sets: re-drill no sooner than ~2 months after finishing
 
   // ---------- state ----------
@@ -324,9 +327,35 @@
       snap.forEach(function (doc) { subjects.push(Object.assign({ id: doc.id }, doc.data())); });
       subjects.sort(function (a, b) { return (a.createdAt||"").localeCompare(b.createdAt||""); });
       render();
+      maybeNotify();
     }, function (err) {
       $("main").innerHTML = '<div class="loading-msg">Couldn\'t load: ' + escapeHtml(err.message) + '</div>';
     });
+  }
+
+  // Reminder: fires a notification (at most once per day) when subjects are due.
+  // Note — this only fires while the app is open or recently backgrounded, since true
+  // background reminders (even with the app fully closed) need a push server setup,
+  // which is a separate, bigger addition if you want it later.
+  function maybeNotify() {
+    if (!("Notification" in window)) return;
+    var dueCount = subjects.filter(isDueForRevision).length;
+    if (dueCount === 0) return;
+    var key = "study-notified-" + todayStr();
+    if (localStorage.getItem(key)) return;
+    function fire() {
+      try {
+        new Notification("Revision due", {
+          body: dueCount + " subject" + (dueCount === 1 ? "" : "s") + " due for revision today.",
+          icon: "icon-192.png"
+        });
+        localStorage.setItem(key, "1");
+      } catch (e) {}
+    }
+    if (Notification.permission === "granted") fire();
+    else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function (perm) { if (perm === "granted") fire(); });
+    }
   }
   function subscribeBooks() {
     if (unsubBooks) unsubBooks();
@@ -354,9 +383,9 @@
     delete data.id;
     subjectsCol().doc(subj.id).set(data, { merge: false }).catch(function (err) { alert("Couldn't save: " + err.message); });
   }
-  function addSubject(name) {
+  function addSubject(name, startDate) {
     var id = uid();
-    saveSubject({ id: id, name: name, createdAt: todayStr() + "T" + Date.now(), revisions: [], bookProgress: {}, mocks: [] });
+    saveSubject({ id: id, name: name, createdAt: (startDate || todayStr()) + "T" + Date.now(), revisions: [], bookProgress: {}, mocks: [] });
   }
   function deleteSubject(id) { subjectsCol().doc(id).delete().catch(function (err) { alert("Couldn't delete: " + err.message); }); }
   function getSubject(id) { return subjects.filter(function (s) { return s.id === id; })[0]; }
@@ -404,7 +433,8 @@
   function nextInterval(revCount) {
     if (revCount <= 0) return REV_INTERVALS[0];
     if (revCount <= REV_INTERVALS.length) return REV_INTERVALS[revCount - 1];
-    return REV_INTERVALS[REV_INTERVALS.length - 1] + (revCount - REV_INTERVALS.length) * 30;
+    var extra = revCount - REV_INTERVALS.length;
+    return Math.min(365, REV_INTERVALS[REV_INTERVALS.length - 1] * Math.pow(2, extra));
   }
   function lastRevisedDate(subj) {
     return subj.revisions.reduce(function (a, b) { return b.date > a ? b.date : a; }, subj.revisions[0].date);
@@ -502,6 +532,7 @@
     if (mode === "subject") {
       $("sheetTitle").textContent = "Add subject";
       html += '<div class="field-label">Subject name</div><input class="input" id="fName" placeholder="Enter subject name"/>';
+      html += '<div class="field-label">Date started</div><input class="input" id="fStartDate" type="date" value="' + todayStr() + '"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Add subject</button></div>';
     } else if (mode === "renameSubject") {
       var s0 = getSubject(ctx.subjectId);
@@ -509,10 +540,10 @@
       html += '<div class="field-label">Subject name</div><input class="input" id="fName" value="' + escapeHtml(s0.name) + '"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
     } else if (mode === "revision") {
-      $("sheetTitle").textContent = "Log a revision";
+      $("sheetTitle").textContent = "Record a revision";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
       html += '<div class="field-label">Note (optional)</div><textarea class="input" id="fNote" placeholder="What did you cover?"></textarea>';
-      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log revision</button></div>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Record revision</button></div>';
     } else if (mode === "newBook") {
       $("sheetTitle").textContent = "New PYQ set";
       html += '<div style="font-size:12.5px;color:var(--text2);margin-bottom:14px;">This PYQ set applies to every subject automatically. Since the number of questions per subject varies by exam, you\'ll set that separately for each subject.</div>';
@@ -528,7 +559,7 @@
       html += '<div class="field-label">Total questions</div><input class="input" id="fTotal" type="number" placeholder="Enter total number of questions"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
     } else if (mode === "pass") {
-      $("sheetTitle").textContent = "Log a pass";
+      $("sheetTitle").textContent = "Record a pass";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
       html += '<div class="field-label">Questions covered</div><input class="input" id="fCount" type="number" placeholder="Enter number of questions"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save pass</button></div>';
@@ -539,10 +570,10 @@
         '<input class="input" id="fCount" type="number" value="' + (prog.completedQuestions || 0) + '"/>';
       html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Save</button></div>';
     } else if (mode === "reviewLog") {
-      $("sheetTitle").textContent = "Log a review pass";
+      $("sheetTitle").textContent = "Record a review pass";
       html += '<div class="field-label">Date</div><input class="input" id="fDate" type="date" value="' + todayStr() + '"/>';
       html += '<div style="font-size:12.5px;color:var(--text2);">This marks that you went back through this set for this subject — it resets its re-drill clock without changing your completion count.</div>';
-      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Log review</button></div>';
+      html += '<div class="sheet-actions"><button class="btn" id="sheetSave">Record review</button></div>';
     } else if (mode === "flag") {
       $("sheetTitle").textContent = "Flag a question";
       html += '<div class="field-label">Question number / label</div><input class="input" id="fName" placeholder="Enter question number or label"/>';
@@ -574,7 +605,8 @@
     if (sheetMode === "subject") {
       var name = $("fName").value.trim();
       if (!name) return;
-      addSubject(name);
+      var startDate = $("fStartDate").value || todayStr();
+      addSubject(name, startDate);
       history.back();
     } else if (sheetMode === "renameSubject") {
       var s0 = getSubject(sheetCtx.subjectId);
@@ -604,7 +636,7 @@
       var s2 = getSubject(sheetCtx.subjectId);
       var prog2 = getProgress(s2, sheetCtx.bookId);
       var passes = (prog2.passes || []).slice();
-      passes.push({ passNumber: passes.length + 1, date: pdate, questionsCovered: count });
+      passes.push({ id: uid(), passNumber: passes.length + 1, date: pdate, questionsCovered: count });
       updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { passes: passes });
       history.back();
     } else if (sheetMode === "progress") {
@@ -618,7 +650,7 @@
       var s4 = getSubject(sheetCtx.subjectId);
       var prog4 = getProgress(s4, sheetCtx.bookId);
       var log = (prog4.reviewLog || []).slice();
-      log.push({ date: rdate });
+      log.push({ id: uid(), date: rdate });
       updateProgress(sheetCtx.subjectId, sheetCtx.bookId, { reviewLog: log });
       history.back();
     } else if (sheetMode === "flag") {
@@ -799,9 +831,9 @@
     '</div>';
 
     if (subjectSubtab === "revision") {
-      html += '<div class="section-title">Revision log<button class="add-btn-sm" id="addRevBtn">+ Log revision</button></div>';
+      html += '<div class="section-title">Revision history<button class="add-btn-sm" id="addRevBtn">+ Record revision</button></div>';
       if (revCount === 0) {
-        html += '<div class="empty" style="padding:20px;">No revisions logged yet. Already covered this subject before? Log a past date to backfill your history.</div>';
+        html += '<div class="empty" style="padding:20px;">No revisions recorded yet. Already covered this subject before? Add a past date to backfill your history.</div>';
       } else {
         s.revisions.slice().sort(function(a,b){return b.date<a.date?-1:1;}).forEach(function (r) {
           html += '<div class="log-card">' +
@@ -891,15 +923,23 @@
       html += '<div class="metric-row"><div class="metric-card"><div class="metric-num">' + pct + '%</div><div class="metric-label">complete</div></div>' +
         '<div class="metric-card"><div class="metric-num">' + (prog.completedQuestions||0) + '/' + prog.totalQuestions + '</div><div class="metric-label">questions</div></div></div>';
       html += '<button class="btn" id="updateProgressBtn">Update progress</button>';
-      html += '<div class="meta-line" style="margin-top:14px;">' + (done ? (last ? "Last reviewed " + niceDate(last) + " · Next review " + niceDate(due) : "Marked complete — log a review pass to start its re-drill clock") : "Not finished yet for this subject") + '</div>';
-      if (done) html += '<button class="btn-outline-accent" id="reviewLogBtn">Log a review pass today</button>';
+      html += '<div class="meta-line" style="margin-top:14px;">' + (done ? (last ? "Last reviewed " + niceDate(last) + " · Next review " + niceDate(due) : "Marked complete — record a review pass to start its re-drill clock") : "Not finished yet for this subject") + '</div>';
+      if (done) html += '<button class="btn-outline-accent" id="reviewLogBtn">Record a review pass today</button>';
+      var reviewLog = prog.reviewLog || [];
+      if (reviewLog.length > 0) {
+        html += '<div class="section-title" style="margin-top:18px;">Review history</div>';
+        reviewLog.slice().sort(function(a,b2){return b2.date<a.date?-1:1;}).forEach(function (r) {
+          html += '<div class="hist-item"><span>' + niceDate(r.date) + '</span><button class="del" data-del-review="' + r.id + '">Remove</button></div>';
+        });
+      }
     } else {
       html += '<div class="meta-line">' + (done ? "Last practiced " + niceDate(last) + " · Next due " + niceDate(due) : "Not finished yet for this subject (" + prog.totalQuestions + " questions total)") + '</div>';
-      html += '<div class="section-title">Passes<button class="add-btn-sm" id="addPassBtn">+ Log pass</button></div>';
+      html += '<div class="section-title">Passes<button class="add-btn-sm" id="addPassBtn">+ Record pass</button></div>';
       var passes = prog.passes || [];
-      if (passes.length === 0) html += '<div class="empty" style="padding:20px;">No passes logged yet.</div>';
+      if (passes.length === 0) html += '<div class="empty" style="padding:20px;">No passes recorded yet.</div>';
       else passes.slice().sort(function(a,b2){return b2.date<a.date?-1:1;}).forEach(function (p) {
-        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' / ' + prog.totalQuestions + ' Qs · ' + niceDate(p.date) + '</span></div>';
+        html += '<div class="hist-item"><span>Pass ' + p.passNumber + '</span><span>' + p.questionsCovered + ' / ' + prog.totalQuestions + ' Qs · ' + niceDate(p.date) + '</span>' +
+          '<button class="del" data-del-pass="' + p.id + '">Remove</button></div>';
       });
     }
     html += '<div class="section-title" style="margin-top:22px;">Flagged questions<button class="add-btn-sm" id="addFlagBtn">+ Add flag</button></div>';
@@ -918,6 +958,20 @@
     }
     html += '</div>';
     return html;
+  }
+
+  function removePass(subjectId, bookId, passId) {
+    var s = getSubject(subjectId);
+    var prog = getProgress(s, bookId);
+    var passes = (prog.passes || []).filter(function (p) { return p.id !== passId; })
+      .map(function (p, i) { return Object.assign({}, p, { passNumber: i + 1 }); });
+    updateProgress(subjectId, bookId, { passes: passes });
+  }
+  function removeReviewEntry(subjectId, bookId, entryId) {
+    var s = getSubject(subjectId);
+    var prog = getProgress(s, bookId);
+    var log = (prog.reviewLog || []).filter(function (r) { return r.id !== entryId; });
+    updateProgress(subjectId, bookId, { reviewLog: log });
   }
 
   function toggleFlag(subjectId, bookId, flagId) {
@@ -1084,6 +1138,16 @@
       if (upBtn) upBtn.addEventListener("click", function () { openSheet("progress", { subjectId: top.subjectId, bookId: top.bookId }); });
       var revLogBtn = $("reviewLogBtn");
       if (revLogBtn) revLogBtn.addEventListener("click", function () { openSheet("reviewLog", { subjectId: top.subjectId, bookId: top.bookId }); });
+      document.querySelectorAll("[data-del-pass]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          if (confirm("Remove this pass? This can't be undone.")) removePass(top.subjectId, top.bookId, el.getAttribute("data-del-pass"));
+        });
+      });
+      document.querySelectorAll("[data-del-review]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          if (confirm("Remove this review entry?")) removeReviewEntry(top.subjectId, top.bookId, el.getAttribute("data-del-review"));
+        });
+      });
       var addPassBtn = $("addPassBtn");
       if (addPassBtn) addPassBtn.addEventListener("click", function () { openSheet("pass", { subjectId: top.subjectId, bookId: top.bookId }); });
       var addFlagBtn = $("addFlagBtn");
